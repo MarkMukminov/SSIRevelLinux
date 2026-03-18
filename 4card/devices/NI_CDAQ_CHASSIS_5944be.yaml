@@ -1,0 +1,4 @@
+display_name: NI cDAQ Chassis
+module_type_key: NI_CDAQ_CHASSIS
+ip_address: 172.16.23.1
+chassis_name: cDAQ9189-22C6D15

@@ -1,0 +1,12 @@
+revel_files:
+- ./cold_flow_test.rvl
+channels:
+- name: PT_OT
+  type: virtual
+  initialValue: 0
+- name: PT_FT
+  type: virtual
+  initialValue: 0
+- name: System_Max_P
+  type: virtual
+  initialValue: 0

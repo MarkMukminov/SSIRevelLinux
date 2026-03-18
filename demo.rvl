@@ -1,0 +1,32 @@
+const CYCLE:float = 0.1
+
+const PULSE_PERIOD_MS:float = 5.0
+const PULSE_WIDTH_MIN_MS:float = 0.5 # 0 deg
+const PULSE_WIDTH_MAX_MS:float = 2.5 # 180 deg
+
+const PULSE_OPEN_FRACTION:float = 0.74 # how far to go for "open"; 0.0 = nothin, 1.0 = open to full 180deg
+
+const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS # the duty cycle to set for closed = 0deg
+var OPEN_DUTY_CYCLE:float = max( min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS # the duty cycle to set for open = PULSE_OPEN_FRACTION * 180
+
+hwout |servo0.command|:bool = True
+hwout |servo0.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0) # convert to Hz
+hwout |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE
+
+hwout |servo1.command|:bool = True
+hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0) # convert to Hz
+hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
+
+sw |servo0.open|:bool = False # False is angle 0.0, True sets angle to 180.0
+sw |servo1.open|:bool = False # False is angle 0.0, True sets angle to 180.0
+
+loop set_servo_duty:
+   if |servo0.open|:
+      |servo0.duty_cycle| = OPEN_DUTY_CYCLE
+   else:
+      |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
+
+   if |servo1.open|:
+      |servo1.duty_cycle| = OPEN_DUTY_CYCLE
+   else:
+      |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
