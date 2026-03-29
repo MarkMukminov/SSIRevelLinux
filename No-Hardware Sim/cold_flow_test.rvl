@@ -1,3 +1,56 @@
+#SENSOR MANIFEST
+# Every sensor channel listed here.
+# Format: channel | type | units | range | description
+#
+# PT_OT  | Pressure    | PSI  | 0 – 1300 PSI  | Oxidizer tank pressure transducer
+# PT_FT  | Pressure    | PSI  | 0 – 1300 PSI  | Fuel tank pressure transducer
+# PT5    | Pressure    | PSI  | 0 – 1300 PSI  | [ASSIGN: confirm physical location before ops]
+# TC1    | Temperature | degF | 70 – 500 degF | [ASSIGN: confirm thermocouple location before ops]
+#
+# Valve channels (COMMANDED position — no position feedback in current hardware):
+# MBV_O.open      | Digital Out | bool | COMMANDED open/closed | Main bleed valve, oxidizer
+# MBV_F.open      | Digital Out | bool | COMMANDED open/closed | Main bleed valve, fuel
+# MBV_O.cmd_change| Computed    | bool | 1-cycle pulse on operator transition
+# MBV_F.cmd_change| Computed    | bool | 1-cycle pulse on operator transition
+# WARNING: .open = COMMANDED state only. Physical position unconfirmed without feedback sensor.
+#
+# Abort channels:
+# EStop_Cmd               | Command | bool | Operator E-Stop — set True to abort immediately
+# Abort_Active            | Status  | bool | Abort is active (latching — requires Reset_Abort)
+# Abort_Cause_Overpressure| Status  | bool | Abort was triggered by overpressure
+# Abort_Cause_EStop       | Status  | bool | Abort was triggered by operator E-Stop
+# Reset_Abort             | Command | bool | Clear abort (only accepted when pressure < MAX_SAFE_P)
+#
+# Ignition channels:
+# Ignition_Armed     | Command | bool | Operator arms ignition (required before fire)
+# Ignition_Ready     | Status  | bool | All preconditions met — computed, read-only
+# Ignition_Fire_Cmd  | Command | bool | Operator fire command (consumed on execution)
+# Ignition_Output    | Output  | bool | Hardware e-match trigger, 1-cycle pulse only
+# Ignition_Fired     | Status  | bool | Latching event record: fire was executed this session
+# Readiness requires: Armed=True, Abort_Active=False, 0 < System_Max_P < MAX_SAFE_P
+#
+# E-Match continuity channels:
+# Ematch_Continuity_Input | HW Input | bool | Bridgewire sense (milliamp — below fire threshold)
+# Ematch_Test_Cmd         | Command  | bool | Operator initiates test (consumed on execution)
+# Ematch_Test_Result      | Status   | bool | Most recent test result (True = continuity OK)
+# Ematch_Test_Run         | Status   | bool | Latching: a test has been run this session
+# Ematch_Ready            | Status   | bool | Test run AND result OK AND no active abort
+# NOTE: result only updates when Test_Cmd is issued — not continuously sampled
+#
+# Ignition dry run channels:
+# Dry_Run_Active    | Command | bool | Operator enables dry run mode
+# Dry_Run_Fire_Cmd  | Command | bool | Fire command during dry run (consumed, no hw output)
+# Dry_Run_Passed    | Status  | bool | Latching: dry run executed successfully
+# NOTE: dry run uses identical readiness interlocks — it is a real sequence test
+#
+# Safety thresholds (PSI):
+#   WARN_P      = 1150 PSI  — caution band, operator awareness
+#   MAX_SAFE_P  = 1240 PSI  — hard limit, triggers automatic abort
+#
+# NOTE: TC1 is in degF. Initialized at 70 degF (ambient). NI 9213 hardware
+# configured for Fahrenheit output. Do NOT display as Celsius without adding
+# a conversion channel.
+
 #CONSTANTS AND CONFIG
 const CYCLE:float = 0.1
 const MAX_SAFE_P: float = 1240.0
@@ -9,25 +62,111 @@ sw |TC1.value|:float = 70.0
 sw |System_Max_P|:float = 0.0
 sw |PT_OT_Prev|:float = 0.0
 sw |PT_FT_Prev|:float = 0.0
-sw |MBV_O.open|:bool = False
-sw |MBV_F.open|:bool = False
+sw |MBV_O.open|:bool = False      #COMMANDED position only — no position feedback
+sw |MBV_F.open|:bool = False      #COMMANDED position only — no position feedback
+sw |MBV_O.cmd_prev|:bool = False  #previous cycle commanded state (internal)
+sw |MBV_F.cmd_prev|:bool = False  #previous cycle commanded state (internal)
+sw |MBV_O.cmd_change|:bool = False #True for 1 cycle on any operator-commanded transition
+sw |MBV_F.cmd_change|:bool = False #True for 1 cycle on any operator-commanded transition
 sw |RV_O_Lifted|:bool = False
 sw |RV_F_Lifted|:bool = False
 sw |Abort_Active|:bool = False
+sw |Abort_Cause_Overpressure|:bool = False  #latches when overpressure triggers abort
+sw |Abort_Cause_EStop|:bool = False         #latches when operator E-Stop triggers abort
+sw |EStop_Cmd|:bool = False                 #operator E-Stop command (consumed on trigger)
 sw |Reset_Abort|:bool = False
+
+#IGNITION CHANNELS
+sw |Ignition_Armed|:bool = False    #operator explicitly arms ignition
+sw |Ignition_Ready|:bool = False    #computed: all preconditions met (read-only indicator)
+sw |Ignition_Fire_Cmd|:bool = False #operator fire command (consumed on execution)
+sw |Ignition_Fired|:bool = False    #latching event record: a fire command was executed
+sw |Ignition_Output|:bool = False   #hardware trigger pulse (True for 1 cycle when fired)
+
+#E-MATCH CONTINUITY TEST CHANNELS
+#Hardware sense circuit uses milliamp current — well below firing threshold
+#Ematch_Continuity_Input is a hw digital input; all other channels are computed
+sw |Ematch_Continuity_Input|:bool = False #hw: True = bridgewire intact
+sw |Ematch_Test_Cmd|:bool = False         #operator initiates continuity check (consumed)
+sw |Ematch_Test_Result|:bool = False      #result of most recent test (True = OK)
+sw |Ematch_Test_Run|:bool = False         #latching: a test has been run this session
+sw |Ematch_Ready|:bool = False            #True when test run AND result OK AND no abort
+
+#IGNITION DRY RUN CHANNELS
+sw |Dry_Run_Active|:bool = False   #operator enables dry run mode
+sw |Dry_Run_Fire_Cmd|:bool = False #operator fire command during dry run (consumed)
+sw |Dry_Run_Passed|:bool = False   #latching: dry run sequence completed successfully
 sw |Ox_Flowing|:bool = False
 sw |Fuel_Flowing|:bool = False
 
+#PER-SENSOR WARNING FLAGS (True when pressure exceeds WARN_P)
+sw |Warn_PT_OT|:bool = False
+sw |Warn_PT_FT|:bool = False
+sw |Warn_PT5|:bool = False
+
+#PER-SENSOR OVERPRESSURE FLAGS (True when pressure exceeds MAX_SAFE_P)
+sw |Overpressure_PT_OT|:bool = False
+sw |Overpressure_PT_FT|:bool = False
+sw |Overpressure_PT5|:bool = False
+
 #LOGIC LOOP
-loop  monitor_safety: 
-    |System_Max_P| = max(|PT_OT.value|,|PT_FT.value|) #check instantaneous max pressure
-    #Calculate pressure drop, if pressure drops more than 20PSI in 0.1s...
-    #while valves are closed, it's a relief valve lifting
+loop  monitor_safety:
+    #VALVE TRANSITION DETECTION (runs before abort enforcement)
+    #cmd_change pulses True for exactly one cycle on any operator-commanded transition
+    #Abort-forced closures do NOT set cmd_change — Abort_Active already explains those
+    if |MBV_O.open| != |MBV_O.cmd_prev|:
+        |MBV_O.cmd_change| = True
+    else:
+        |MBV_O.cmd_change| = False
+    if |MBV_F.open| != |MBV_F.cmd_prev|:
+        |MBV_F.cmd_change| = True
+    else:
+        |MBV_F.cmd_change| = False
+
+    |System_Max_P| = max(max(|PT_OT.value|,|PT_FT.value|),|PT5.value|)
+
+    #PER-SENSOR WARNINGS: operator sees exactly which sensor is high
+    if |PT_OT.value| > WARN_P:
+        |Warn_PT_OT| = True
+    else:
+        |Warn_PT_OT| = False
+    if |PT_FT.value| > WARN_P:
+        |Warn_PT_FT| = True
+    else:
+        |Warn_PT_FT| = False
+    if |PT5.value| > WARN_P:
+        |Warn_PT5| = True
+    else:
+        |Warn_PT5| = False
+
+    #PER-SENSOR OVERPRESSURE: flags which sensor breached MAX_SAFE_P
+    if |PT_OT.value| > MAX_SAFE_P:
+        |Overpressure_PT_OT| = True
+    else:
+        |Overpressure_PT_OT| = False
+    if |PT_FT.value| > MAX_SAFE_P:
+        |Overpressure_PT_FT| = True
+    else:
+        |Overpressure_PT_FT| = False
+    if |PT5.value| > MAX_SAFE_P:
+        |Overpressure_PT5| = True
+    else:
+        |Overpressure_PT5| = False
+
+    #Relief valve detection: drop >20 PSI in one cycle (0.1s) while valve closed
+    #Flag is sticky-True until operator opens the valve (clears on valve open)
+    #We use per-side prev values so ox and fuel detections are fully independent
     if |MBV_O.open| == False:
         if (|PT_OT_Prev| - |PT_OT.value|) > 20.0:
             |RV_O_Lifted| = True
     else:
         |RV_O_Lifted| = False
+
+    if |MBV_F.open| == False:
+        if (|PT_FT_Prev| - |PT_FT.value|) > 20.0:
+            |RV_F_Lifted| = True
+    else:
+        |RV_F_Lifted| = False
 
     |PT_OT_Prev| = |PT_OT.value|
     |PT_FT_Prev| = |PT_FT.value|
@@ -43,18 +182,98 @@ loop  monitor_safety:
     else:
         |Fuel_Flowing| = False
 
-    #Abort and abort reset logic
+    #ABORT TRIGGER 1: automatic overpressure
     if |System_Max_P| > MAX_SAFE_P:
+        |Abort_Cause_Overpressure| = True
         |Abort_Active| = True
 
+    #ABORT TRIGGER 2: operator E-Stop (command consumed same cycle)
+    if |EStop_Cmd| == True:
+        |Abort_Cause_EStop| = True
+        |Abort_Active| = True
+        |EStop_Cmd| = False
+
+    #ABORT RESPONSE: close all flow paths regardless of cause
     if |Abort_Active| == True:
         |MBV_O.open| = False
         |MBV_F.open| = False
-    
+
+    #ABORT RESET: operator clears abort once pressure is confirmed safe
+    #Clears abort flag AND all cause flags so panel shows clean state
     if |Reset_Abort| == True:
         if |System_Max_P| < MAX_SAFE_P:
             |Abort_Active| = False
+            |Abort_Cause_Overpressure| = False
+            |Abort_Cause_EStop| = False
             |Reset_Abort| = False
+
+    #Update valve cmd_prev AFTER abort enforcement so post-abort state is captured
+    |MBV_O.cmd_prev| = |MBV_O.open|
+    |MBV_F.cmd_prev| = |MBV_F.open|
+
+
+#E-MATCH CONTINUITY LOOP
+loop ematch_continuity:
+    #Execute test when commanded — snapshot hw reading at that instant
+    if |Ematch_Test_Cmd| == True:
+        |Ematch_Test_Cmd| = False
+        |Ematch_Test_Result| = |Ematch_Continuity_Input|
+        |Ematch_Test_Run| = True
+
+    #Ready: test was run AND last result good AND no active abort
+    #Abort requires re-check of readiness (not re-test, just re-evaluation)
+    if |Ematch_Test_Run| == True:
+        if |Ematch_Test_Result| == True:
+            if |Abort_Active| == False:
+                |Ematch_Ready| = True
+            else:
+                |Ematch_Ready| = False
+        else:
+            |Ematch_Ready| = False
+    else:
+        |Ematch_Ready| = False
+
+
+#IGNITION LOOP
+loop ignition_sequence:
+    #Abort clears arm — cannot be armed during or after an abort
+    if |Abort_Active| == True:
+        |Ignition_Armed| = False
+
+    #Compute readiness: all preconditions must hold simultaneously
+    #Operator sees this as a go/no-go indicator before issuing fire command
+    if |Ignition_Armed| == True:
+        if |Abort_Active| == False:
+            if |System_Max_P| > 0.0:
+                if |System_Max_P| < MAX_SAFE_P:
+                    |Ignition_Ready| = True
+                else:
+                    |Ignition_Ready| = False
+            else:
+                |Ignition_Ready| = False
+        else:
+            |Ignition_Ready| = False
+    else:
+        |Ignition_Ready| = False
+
+    #Clear output every cycle — it is a one-cycle pulse only
+    |Ignition_Output| = False
+
+    #DRY RUN: exercises full sequence without hardware output
+    #All readiness interlocks are real — Ignition_Output is never set
+    if |Dry_Run_Fire_Cmd| == True:
+        |Dry_Run_Fire_Cmd| = False
+        if |Dry_Run_Active| == True:
+            if |Ignition_Ready| == True:
+                |Dry_Run_Passed| = True
+
+    #LIVE FIRE: only when ready, command is consumed regardless
+    #Dry_Run_Active does NOT block this path
+    if |Ignition_Fire_Cmd| == True:
+        |Ignition_Fire_Cmd| = False
+        if |Ignition_Ready| == True:
+            |Ignition_Output| = True
+            |Ignition_Fired| = True
 
 
 #MOCK SIGNAL GENERATOR
