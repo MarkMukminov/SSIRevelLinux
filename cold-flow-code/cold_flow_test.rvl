@@ -157,15 +157,15 @@ sw |Overpressure_PT5|:bool = False
 #Maps hardware channel names to descriptive logic names used throughout the control code.
 #UPDATE THESE ASSIGNMENTS to match your actual wiring harness.
 loop read_hardware:
-    |PT_OT.value| = |pt0.value|
-    |PT_FT.value| = |pt1.value|
-    |PT5.value| = |pt2.value|
-    |TC1.value| = |tc0.value|
+    |PT_OT.value| = |pt0|
+    |PT_FT.value| = |pt1|
+    |PT5.value| = |pt2|
+    |TC1.value| = |tc0|
     #NI 9219 load cell channels — long auto-generated names aliased here
-    |LC0.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0.value|
-    |LC1.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1.value|
-    |LC2.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2.value|
-    |LC3.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3.value|
+    |LC0.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0|
+    |LC1.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1|
+    |LC2.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2|
+    |LC3.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3|
 
 
 #LOGIC LOOP
