@@ -1,0 +1,79 @@
+display_name: NI 9219 Universal Input
+module_type_key: NI_9219
+chassis_name: cDAQ9189-22C6D15
+slot_number: 4
+sample_rate_hz_per_channel: 10000.0
+adc_timing_mode: High Resolution
+channel_settings:
+- is_enabled: true
+  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0
+  address: slot4_Specialty0
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+  measurement_mode: strain_gauge
+  excitation_voltage: 2.5
+  strain_config: QuarterBridgeI
+  gage_factor: 2.0
+  poisson_ratio: 0.3
+  bridge_config: Full Bridge
+  voltage_range_v: +/-60.0V
+  voltage_terminal_config: Differential
+  resistance_range: "0-1.05k\u03A9"
+  resistance_config: 4_wire
+  resistance_excitation_current: 0.0005
+- is_enabled: true
+  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1
+  address: slot4_Specialty1
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+  measurement_mode: strain_gauge
+  excitation_voltage: 2.5
+  strain_config: QuarterBridgeI
+  gage_factor: 2.0
+  poisson_ratio: 0.3
+  bridge_config: Full Bridge
+  voltage_range_v: +/-60.0V
+  voltage_terminal_config: Differential
+  resistance_range: "0-1.05k\u03A9"
+  resistance_config: 4_wire
+  resistance_excitation_current: 0.0005
+- is_enabled: true
+  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2
+  address: slot4_Specialty2
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+  measurement_mode: strain_gauge
+  excitation_voltage: 2.5
+  strain_config: QuarterBridgeI
+  gage_factor: 2.0
+  poisson_ratio: 0.3
+  bridge_config: Full Bridge
+  voltage_range_v: +/-60.0V
+  voltage_terminal_config: Differential
+  resistance_range: "0-1.05k\u03A9"
+  resistance_config: 4_wire
+  resistance_excitation_current: 0.0005
+- is_enabled: true
+  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3
+  address: slot4_Specialty3
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+  measurement_mode: strain_gauge
+  excitation_voltage: 2.5
+  strain_config: QuarterBridgeI
+  gage_factor: 2.0
+  poisson_ratio: 0.3
+  bridge_config: Full Bridge
+  voltage_range_v: +/-60.0V
+  voltage_terminal_config: Differential
+  resistance_range: "0-1.05k\u03A9"
+  resistance_config: 4_wire
+  resistance_excitation_current: 0.0005

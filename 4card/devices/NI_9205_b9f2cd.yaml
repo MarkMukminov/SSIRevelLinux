@@ -1,7 +1,7 @@
 display_name: NI 9205 Analog Input
 module_type_key: NI_9205
 chassis_name: cDAQ9189-22C6D15
-slot_number: 1
+slot_number: 5
 enable_high_speed_mode: false
 sample_rate_hz_per_channel: 7812.5
 voltage_range_v: +/-5.0V

@@ -1,7 +1,7 @@
 display_name: NI 9213 Thermocouple Input
 module_type_key: NI_9213
 chassis_name: cDAQ9189-22C6D15
-slot_number: 7
+slot_number: 8
 cjc_source: Internal
 cjc_temperature: 25.0
 adc_timing_mode: High Resolution

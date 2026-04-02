@@ -1,7 +1,7 @@
 display_name: NI 9401 High-Speed DIO
 module_type_key: NI_9401
 chassis_name: cDAQ9189-22C6D15
-slot_number: 5
+slot_number: 2
 logic_level: 5V TTL
 port0_mode: Pulse Generation
 port1_mode: Pulse Generation

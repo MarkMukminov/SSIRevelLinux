@@ -1,23 +1,23 @@
 display_name: NI 9482
 module_type_key: NI_UNSUPPORTED_MODULE
 chassis_name: cDAQ9189-22C6D15
-slot_number: 4
+slot_number: 3
 channels:
 - channel_type: DigitalOutput
-  hardware_name: cDAQ9189-22C6D15Mod4/port0/line0
+  hardware_name: cDAQ9189-22C6D15Mod3/port0/line0
   revel_name: sv0
 - channel_type: DigitalOutput
-  hardware_name: cDAQ9189-22C6D15Mod4/port0/line1
+  hardware_name: cDAQ9189-22C6D15Mod3/port0/line1
   revel_name: sv1
 - channel_type: DigitalOutput
-  hardware_name: cDAQ9189-22C6D15Mod4/port0/line2
+  hardware_name: cDAQ9189-22C6D15Mod3/port0/line2
   revel_name: sv2
 - channel_type: DigitalOutput
-  hardware_name: cDAQ9189-22C6D15Mod4/port0/line3
+  hardware_name: cDAQ9189-22C6D15Mod3/port0/line3
   revel_name: sv3
 metadata:
+  parent_field: chassis_name
   discovered_at: '2026-02-06T04:32:35.725661+00:00'
   original_model: NI 9482
   original_vendor: NI
-  parent_field: chassis_name
   serial_number: '0x233924e'
