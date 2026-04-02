@@ -1,18 +1,32 @@
 #SENSOR MANIFEST
-# Every sensor channel listed here.
-# Format: channel | type | units | range | description
+# Every sensor channel listed here. Operators must know exactly what they are reading.
+# Format: logic name ← hw channel | type | units | range | description
 #
-# PT_OT  | Pressure    | PSI  | 0 – 1300 PSI  | Oxidizer tank pressure transducer
-# PT_FT  | Pressure    | PSI  | 0 – 1300 PSI  | Fuel tank pressure transducer
-# PT5    | Pressure    | PSI  | 0 – 1300 PSI  | [ASSIGN: confirm physical location before ops]
-# TC1    | Temperature | degF | 70 – 500 degF | [ASSIGN: confirm thermocouple location before ops]
+# HARDWARE CHANNEL MAPPING (verify against your wiring before ops):
+# PT_OT  ← pt0  | Pressure    | PSI  | 0 – 1300 PSI  | Oxidizer tank pressure transducer
+# PT_FT  ← pt1  | Pressure    | PSI  | 0 – 1300 PSI  | Fuel tank pressure transducer
+# PT5    ← pt2  | Pressure    | PSI  | 0 – 1300 PSI  | [VERIFY: confirm physical location before ops]
+# TC1    ← tc0  | Temperature | degF | 70 – 500 degF | [VERIFY: confirm thermocouple location before ops]
+# LC0    ← NI_9219_ch0 | Load Cell | raw | strain gauge | [VERIFY: confirm load cell — probably LC-O oxidizer]
+# LC1    ← NI_9219_ch1 | Load Cell | raw | strain gauge | [VERIFY: confirm load cell assignment]
+# LC2    ← NI_9219_ch2 | Load Cell | raw | strain gauge | [VERIFY: confirm load cell assignment]
+# LC3    ← NI_9219_ch3 | Load Cell | raw | strain gauge | [VERIFY: confirm load cell assignment]
+# NOTE: LC channels read raw strain gauge units. Add a scaling channel to convert to lbf/N.
 #
 # Valve channels (COMMANDED position — no position feedback in current hardware):
-# MBV_O.open      | Digital Out | bool | COMMANDED open/closed | Main bleed valve, oxidizer
-# MBV_F.open      | Digital Out | bool | COMMANDED open/closed | Main bleed valve, fuel
-# MBV_O.cmd_change| Computed    | bool | 1-cycle pulse on operator transition
-# MBV_F.cmd_change| Computed    | bool | 1-cycle pulse on operator transition
+# MBV_O.open → sv0  | Relay Out | bool | COMMANDED open/closed | Main bleed valve, oxidizer
+# MBV_F.open → sv1  | Relay Out | bool | COMMANDED open/closed | Main bleed valve, fuel
+# MBV_O.cmd_change   | Computed  | bool | 1-cycle pulse on operator transition
+# MBV_F.cmd_change   | Computed  | bool | 1-cycle pulse on operator transition
 # WARNING: .open = COMMANDED state only. Physical position unconfirmed without feedback sensor.
+#
+# Ignition hardware output:
+# Ignition_Output → sv2 | Relay Out | bool | E-match trigger, 1-cycle pulse only
+#
+# Ematch continuity:
+# Ematch_Continuity_Input ← [ASSIGN HW CHANNEL] | HW Input | bool | Bridgewire sense
+# NOTE: No hardware digital input currently assigned for ematch continuity.
+#       Assign a DIO channel (e.g. ch0 on NI 9401 slot 5) and enable it in device YAML.
 #
 # Abort channels:
 # EStop_Cmd               | Command | bool | Operator E-Stop — set True to abort immediately
@@ -47,14 +61,36 @@
 #   WARN_P      = 1150 PSI  — caution band, operator awareness
 #   MAX_SAFE_P  = 1240 PSI  — hard limit, triggers automatic abort
 #
-# NOTE: TC1 is in degF. Initialized at 70 degF (ambient). NI 9213 hardware
-# configured for Fahrenheit output. Do NOT display as Celsius without adding
-# a conversion channel.
+# NOTE: TC1 is in degF. NI 9213 hardware configured for Fahrenheit output.
+# Do NOT display as Celsius without adding a conversion channel.
+#
+# HARDWARE:
+# NI cDAQ-9189 chassis at 172.16.23.1
+# Slot 1: NI 9482 — 4ch Relay Output (solenoid valves sv10–sv13)
+# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
+# Slot 3: NI 9482 — 4ch Relay Output (solenoid valves sv0–sv3)
+# Slot 4: NI 9219 — 4ch Universal Input, strain gauge mode (LC0–LC3, load cells)
+#          Channel revel_names: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0 through ch3
+#          Aliased in read_hardware loop to LC0.value – LC3.value
+# Slot 5: NI 9205 — 32ch Analog Input (pressure transducers pt0–pt31)
+# Slot 8: NI 9213 — 16ch Thermocouple Input (tc0–tc15, Type K, degF)
+#
+# NOTE: NI_9205 YAML lists slot_number:5 but hardware addresses say slot1_AnalogInput*.
+# NI_9213 lists slot_number:8 but addresses say slot7_Specialty*.
+# NI_9401 lists slot_number:2 but addresses say slot5_DigitalInputOutput*.
+# Verify address fields match physical wiring before ops — the revel_names are correct.
 
 #CONSTANTS AND CONFIG
 const CYCLE:float = 0.1
 const MAX_SAFE_P: float = 1240.0
 const WARN_P: float = 1150.0
+
+#HARDWARE OUTPUT DECLARATIONS
+hwout |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
+hwout |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
+hwout |sv2.value|:bool = False    #Ignition_Output: e-match trigger
+
+#SOFTWARE CHANNELS — sensor intermediaries (mapped from hardware in read_hardware loop)
 sw |PT_OT.value|:float = 0.0
 sw |PT_FT.value|:float = 0.0
 sw |PT5.value|:float = 0.0
@@ -86,7 +122,7 @@ sw |Ignition_Output|:bool = False   #hardware trigger pulse (True for 1 cycle wh
 #E-MATCH CONTINUITY TEST CHANNELS
 #Hardware sense circuit uses milliamp current — well below firing threshold
 #Ematch_Continuity_Input is a hw digital input; all other channels are computed
-sw |Ematch_Continuity_Input|:bool = False #hw: True = bridgewire intact
+sw |Ematch_Continuity_Input|:bool = False #TODO: replace with hwin when DIO channel assigned
 sw |Ematch_Test_Cmd|:bool = False         #operator initiates continuity check (consumed)
 sw |Ematch_Test_Result|:bool = False      #result of most recent test (True = OK)
 sw |Ematch_Test_Run|:bool = False         #latching: a test has been run this session
@@ -99,6 +135,13 @@ sw |Dry_Run_Passed|:bool = False   #latching: dry run sequence completed success
 sw |Ox_Flowing|:bool = False
 sw |Fuel_Flowing|:bool = False
 
+#LOAD CELL CHANNELS (NI 9219, Slot 4 — strain gauge / universal input)
+#Long hardware revel_names are aliased in read_hardware loop for readability
+sw |LC0.value|:float = 0.0  #[VERIFY: confirm load cell assignment — probably LC-O]
+sw |LC1.value|:float = 0.0  #[VERIFY: confirm load cell assignment]
+sw |LC2.value|:float = 0.0  #[VERIFY: confirm load cell assignment]
+sw |LC3.value|:float = 0.0  #[VERIFY: confirm load cell assignment]
+
 #PER-SENSOR WARNING FLAGS (True when pressure exceeds WARN_P)
 sw |Warn_PT_OT|:bool = False
 sw |Warn_PT_FT|:bool = False
@@ -108,6 +151,22 @@ sw |Warn_PT5|:bool = False
 sw |Overpressure_PT_OT|:bool = False
 sw |Overpressure_PT_FT|:bool = False
 sw |Overpressure_PT5|:bool = False
+
+
+#HARDWARE INPUT MAPPING
+#Maps hardware channel names to descriptive logic names used throughout the control code.
+#UPDATE THESE ASSIGNMENTS to match your actual wiring harness.
+loop read_hardware:
+    |PT_OT.value| = |pt0.value|
+    |PT_FT.value| = |pt1.value|
+    |PT5.value| = |pt2.value|
+    |TC1.value| = |tc0.value|
+    #NI 9219 load cell channels — long auto-generated names aliased here
+    |LC0.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0.value|
+    |LC1.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1.value|
+    |LC2.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2.value|
+    |LC3.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3.value|
+
 
 #LOGIC LOOP
 loop  monitor_safety:
@@ -276,24 +335,10 @@ loop ignition_sequence:
             |Ignition_Fired| = True
 
 
-#MOCK SIGNAL GENERATOR
-#Simulate Pressurization to test UI
-loop simulate_pressure:
-    if |MBV_O.open| == True:
-        |PT_OT.value| = |PT_OT.value| - 25.0
-    if |MBV_O.open| == False:
-        |PT_OT.value| = |PT_OT.value| + 10.0
-    if |PT_OT.value| < 0.0:
-        |PT_OT.value| = 0.0
-    |PT_FT.value| = |PT_FT.value| + 8.0
-    |PT5.value| = |PT5.value| + 5.0
-    |TC1.value| = |TC1.value| + 0.1
-
-    if |PT_OT.value| > 1300.0:
-        |PT_OT.value| = 0.0
-    if |PT_FT.value| > 1300.0:
-        |PT_FT.value| = 0.0
-    if |PT5.value| > 1300.0:
-        |PT5.value| = 0.0
-    if |TC1.value| > 500.0:
-        |TC1.value| = 70.0
+#HARDWARE OUTPUT MAPPING
+#Writes logic channel states to physical hardware outputs.
+#UPDATE THESE ASSIGNMENTS to match your actual wiring harness.
+loop write_hardware:
+    |sv0.value| = |MBV_O.open|
+    |sv1.value| = |MBV_F.open|
+    |sv2.value| = |Ignition_Output|

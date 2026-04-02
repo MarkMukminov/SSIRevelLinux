@@ -10,7 +10,7 @@ import re
 import sys
 import os
 
-RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "No-Hardware Sim", "cold_flow_test.rvl")
+RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "cold-flow-code", "cold_flow_test.rvl")
 
 
 def read_rvl():
@@ -105,7 +105,7 @@ def run_structural_checks(rvl_text):
 
 
 def main():
-    print("Validating: No-Hardware Sim/cold_flow_test.rvl")
+    print("Validating: cold-flow-code/cold_flow_test.rvl")
     print(f"File: {os.path.abspath(RVL_PATH)}")
 
     rvl_text = read_rvl()

@@ -1,0 +1,84 @@
+display_name: NI 9401 High-Speed DIO
+module_type_key: NI_9401
+chassis_name: cDAQ9189-22C6D15
+slot_number: 2
+logic_level: 5V TTL
+port0_mode: Pulse Generation
+port1_mode: Pulse Generation
+port0_frequency_hz: 1000.0
+port0_duty_cycle_percent: 50.0
+port1_frequency_hz: 1000.0
+port1_duty_cycle_percent: 50.0
+port0_commandable: true
+port1_commandable: true
+channel_settings:
+- is_enabled: false
+  revel_name: ch0
+  address: slot5_DigitalInputOutput0
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch1
+  address: slot5_DigitalInputOutput1
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch2
+  address: slot5_DigitalInputOutput2
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch3
+  address: slot5_DigitalInputOutput3
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch4
+  address: slot5_DigitalInputOutput4
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch5
+  address: slot5_DigitalInputOutput5
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch6
+  address: slot5_DigitalInputOutput6
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: false
+  revel_name: ch7
+  address: slot5_DigitalInputOutput7
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: true
+  revel_name: servo0
+  address: slot5_DigitalInputOutput8
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''
+- is_enabled: true
+  revel_name: servo1
+  address: slot5_DigitalInputOutput9
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
+  description: ''

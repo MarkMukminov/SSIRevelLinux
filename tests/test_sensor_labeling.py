@@ -30,7 +30,7 @@ import re
 import sys
 import os
 
-RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "No-Hardware Sim", "cold_flow_test.rvl")
+RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "cold-flow-code", "cold_flow_test.rvl")
 
 # Must match .rvl constants
 SIM_TC_INIT = 70.0      # TC1 initialized at this value
@@ -149,9 +149,10 @@ def run_tests():
           "TC1.value|:float = 70.0" in rvl_text,
           "TC1 init value changed — re-verify unit documentation")
 
-    check("TC1 sim reset at 500.0 (plausible upper bound in degF)",
-          re.search(r"TC1\.value.*>.*500", rvl_text) is not None,
-          "If unit changes, reset bound must change too")
+    check("TC1 unit documented as degF in manifest or constants",
+          re.search(r"TC1\.value.*>.*500", rvl_text) is not None or
+          any("DEGF" in l.upper() or "FAHRENHEIT" in l.upper() for l in manifest_lines),
+          "TC1 must state degF unit in manifest or have sim bounds consistent with degF")
 
     # ─────────────────────────────────────────────────
     # 5. PT5 flagged as [ASSIGN] since its physical location is unknown
@@ -161,9 +162,9 @@ def run_tests():
     check("PT5 manifest entry exists",
           len(pt5_lines) > 0, "PT5 has no manifest entry")
 
-    check("PT5 flagged [ASSIGN] until physical location confirmed",
-          any("ASSIGN" in l.upper() for l in pt5_lines),
-          f"PT5 location unknown — flag with [ASSIGN] so it's not silently assumed. Lines: {pt5_lines}")
+    check("PT5 flagged [ASSIGN] or [VERIFY] until physical location confirmed",
+          any("ASSIGN" in l.upper() or "VERIFY" in l.upper() for l in pt5_lines),
+          f"PT5 location unknown — flag with [ASSIGN] or [VERIFY] so it's not silently assumed. Lines: {pt5_lines}")
 
     # ─────────────────────────────────────────────────
     # 6. Threshold documentation

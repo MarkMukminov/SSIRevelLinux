@@ -14,7 +14,7 @@ import re
 import sys
 import os
 
-RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "No-Hardware Sim", "cold_flow_test.rvl")
+RVL_PATH = os.path.join(os.path.dirname(__file__), "..", "cold-flow-code", "cold_flow_test.rvl")
 
 
 def read_rvl():
