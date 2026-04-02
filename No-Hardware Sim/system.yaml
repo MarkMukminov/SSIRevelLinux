@@ -9,4 +9,4 @@ channels:
   initialValue: 0
 - name: System_Max_P
   type: virtual
-  initialValue: 5
+  initialValue: 0
