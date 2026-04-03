@@ -70,8 +70,8 @@
 # Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
 # Slot 3: NI 9482 — 4ch Relay Output (solenoid valves sv0–sv3)
 # Slot 4: NI 9219 — 4ch Universal Input, strain gauge mode (LC0–LC3, load cells)
-#          Channel revel_names: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0 through ch3
-#          Aliased in read_hardware loop to LC0.value – LC3.value
+#          Channel revel_names: lc0–lc3 (defined in cold-flow-code.json)
+#          Mapped in read_hardware loop to LC0.value – LC3.value
 # Slot 5: NI 9205 — 32ch Analog Input (pressure transducers pt0–pt31)
 # Slot 8: NI 9213 — 16ch Thermocouple Input (tc0–tc15, Type K, degF)
 #
@@ -161,11 +161,11 @@ loop read_hardware:
     |PT_FT.value| = |pt1|
     |PT5.value| = |pt2|
     |TC1.value| = |tc0|
-    #NI 9219 load cell channels — long auto-generated names aliased here
-    |LC0.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0|
-    |LC1.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1|
-    |LC2.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2|
-    |LC3.value| = |NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3|
+    #NI 9219 load cell channels (short names defined in cold-flow-code.json)
+    |LC0.value| = |lc0|
+    |LC1.value| = |lc1|
+    |LC2.value| = |lc2|
+    |LC3.value| = |lc3|
 
 
 #LOGIC LOOP

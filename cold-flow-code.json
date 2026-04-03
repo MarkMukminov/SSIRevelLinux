@@ -1,0 +1,487 @@
+{
+  "system_name": "ColdFlowSystem",
+  "files": [
+    "cold-flow-code/cold_flow_test.rvl"
+  ],
+  "devices": [
+    {
+      "device_type": "NISystem",
+      "ip_address": "172.16.23.1",
+      "device_name": "cDAQ9189-22C6D15",
+      "channels": [
+        {
+          "revel_name": "pt0",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai0",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt1",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai1",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt2",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai2",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt3",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai3",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt4",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai4",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt5",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai5",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt6",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai6",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt7",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai7",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt8",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai8",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt9",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai9",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt10",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai10",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt11",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai11",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt12",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai12",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt13",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai13",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt14",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai14",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt15",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai15",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt16",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai16",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt17",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai17",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt18",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai18",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt19",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai19",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt20",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai20",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt21",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai21",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt22",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai22",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt23",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai23",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt24",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai24",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt25",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai25",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt26",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai26",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt27",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai27",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt28",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai28",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt29",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai29",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt30",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai30",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "pt31",
+          "hardware_name": "cDAQ9189-22C6D15Mod5/ai31",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "tc0",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai0",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc1",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai1",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc2",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai2",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc3",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai3",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc4",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai4",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc5",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai5",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc6",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai6",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc7",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai7",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc8",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai8",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc9",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai9",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc10",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai10",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc11",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai11",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc12",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai12",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc13",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai13",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc14",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai14",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "tc15",
+          "hardware_name": "cDAQ9189-22C6D15Mod8/ai15",
+          "channel_type": "Thermocouple",
+          "channel_details": {
+            "temperature_units": "F",
+            "thermocouple_type": "K"
+          }
+        },
+        {
+          "revel_name": "lc0",
+          "hardware_name": "cDAQ9189-22C6D15Mod4/ai0",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "lc1",
+          "hardware_name": "cDAQ9189-22C6D15Mod4/ai1",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "lc2",
+          "hardware_name": "cDAQ9189-22C6D15Mod4/ai2",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "lc3",
+          "hardware_name": "cDAQ9189-22C6D15Mod4/ai3",
+          "channel_type": "AnalogInput",
+          "channel_details": {
+            "signal_type": "Voltage"
+          }
+        },
+        {
+          "revel_name": "sv0",
+          "hardware_name": "cDAQ9189-22C6D15Mod3/port0/line0",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv1",
+          "hardware_name": "cDAQ9189-22C6D15Mod3/port0/line1",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv2",
+          "hardware_name": "cDAQ9189-22C6D15Mod3/port0/line2",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv3",
+          "hardware_name": "cDAQ9189-22C6D15Mod3/port0/line3",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv10",
+          "hardware_name": "cDAQ9189-22C6D15Mod1/port0/line0",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv11",
+          "hardware_name": "cDAQ9189-22C6D15Mod1/port0/line1",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv12",
+          "hardware_name": "cDAQ9189-22C6D15Mod1/port0/line2",
+          "channel_type": "DigitalOutput"
+        },
+        {
+          "revel_name": "sv13",
+          "hardware_name": "cDAQ9189-22C6D15Mod1/port0/line3",
+          "channel_type": "DigitalOutput"
+        }
+      ]
+    }
+  ]
+}
