@@ -1,0 +1,154 @@
+Dashboards
+Dashboards provide customizable visualizations for monitoring and controlling your system. Create piping and instrumentation diagrams (P&ID), custom monitoring interfaces, and control panels tailored to test operations.
+
+Dashboard Navigation Panel
+The Dashboard Navigation Panel (left side) displays all dashboards in the system, sorted alphabetically. Switch between dashboards by clicking their names. Use the search bar at the top to filter dashboards by name.
+
+Dashboards with unpublished changes are indicated with a blue dot Unpublished changes indicator next to the dashboard name.
+
+Click the Collapse Sidebar button Collapse Sidebar button to show or hide the navigation panel.
+
+Creating and Editing Dashboards
+To create a new dashboard, click the New Diagram button button at the top of the dashboard list. Then enter a dashboard name in the box above the new dashboard.
+
+To edit an existing dashboard, click the Edit Dashboard button button in the top right corner to open edit mode.
+
+Publishing Dashboards
+When you create or edit a dashboard, it initially exists only on your device, as indicated by the On This Device label in the navigation panel. This allows you to create custom dashboards and iterate quickly without affecting other users.
+
+Local Storage Warning
+
+Dashboards stored on the local device use browser local storage and will be lost if browser data is cleared or if switching browsers or computers. Publish or download important dashboards to preserve them.
+
+Publishing a dashboard automatically updates it for all connected Consoles. Publishing requires Commander privileges.
+
+Dashboard Components
+When editing a dashboard, the Dashboard Component Palette appears on the left.
+
+Components fall into two categories:
+
+Static components provide visual structure for diagrams but do not connect to telemetry (e.g., Check Valve, Relief Valve, Text labels, Heat Exchanger symbols)
+Telemetry components display live data and enable control for telemetry channels (e.g., Telemetry Readout, Trace Plot, Boolean Switch, Tank)
+Drag and drop components onto the canvas, then click them to configure properties such as linked channels, labels, colors, and sizes.
+
+Multi Component Placement
+To place multiple instances of a component in a grid arrangement, click the component in the palette to display a grid selector. Hover over the grid to highlight the desired number of rows and columns, then click and drag the arranged group onto the canvas.
+
+Dashboard Component List
+The following components are available:
+
+Name	Type	Description
+3-way Valve	Telemetry	Displays and controls a three-way valve position
+Air Domed Regulator	Static	Pressure regulator with gas-charged dome for back pressure control
+Boolean	Telemetry	Display and toggle boolean channel values
+Check Valve	Static	One-way check valve symbol for fluid control
+Filter	Static	Fluid filtration component
+Flex Hose	Static	Flexible connection line for accommodating movement
+Flow Meter	Static	Flow measurement device symbol for instrumentation diagrams
+Heat Exchanger	Static	Thermal transfer component for heating or cooling fluids
+Image	Static	Custom image upload for backgrounds or equipment photos
+Indicator	Static	Letter label for annotating diagrams
+Junction	Static	Connection point element for joining diagram edges
+Manual 3-way Valve	Static	Hand-operated valve directing flow between three ports
+Manual Regulator	Static	Hand-operated pressure or flow control device
+Manual Valve	Static	Hand-operated on/off flow control
+Oil Heater	Static	Thermal conditioning component for hydraulic fluid
+Orifice	Static	Flow restriction element for pressure drop or flow measurement
+Portal	Static	Indicates connections to external sources and systems
+Pump	Telemetry	Pump status and control
+Relief Valve	Static	Overpressure protection device that opens at set pressure
+Run Controller	Telemetry	Start and manage test runs with optional data streaming to Sift
+Sequence Monitor	Telemetry	Control RevelCode sequences (start, pause, abort)
+Sparkline	Telemetry	Compact line graph showing recent channel movement
+State Machine Monitor	Telemetry	Monitor and control RevelCode state machines
+Switch	Telemetry	Toggle switch for boolean channels
+Table	Telemetry	Display tabular data from multiple channels
+Tank	Telemetry	Visual tank with fluid level indication
+Telemetry Readout	Telemetry	Primary component for displaying and commanding channel data
+Text	Static	Free-form text label
+Throttle Valve	Telemetry	Command analog valve position 0-100%
+Trace Plot	Telemetry	Multi-channel time-series graph
+Valve	Telemetry	Two-way valve status and control
+Vent	Static	Atmospheric exhaust port for pressure relief or drainage
+Custom Colors
+Some dashboard components support custom colors for visual differentiation in P&ID diagrams. Custom colors help operators quickly identify related channels, distinguish subsystems, or match site-specific color conventions.
+
+Color Use in Safety-Critical Displays
+
+Human-machine interface (HMI) best practices recommend reserving high-saturation warm colors exclusively for alarms, warnings, and abnormal conditions. When reds, oranges, and yellows are used for general-purpose styling, genuine alerts lose their visual urgency and operators may miss safety-critical information.
+
+The custom color palette intentionally excludes red, orange, and yellow. These colors are reserved for system status indicators.
+
+Supported Components
+Component	Effect
+Boolean	Fill color when the value is true
+Indicator	Border and text color
+Switch	Border and text color for each switch state
+Tank	Tank fill color
+Telemetry Readout	Border and sparkline color
+To set a custom color, click a component in edit mode to open its property panel and select a color from the picker. To clear a custom color, click the selected swatch again.
+
+Status Override Behavior
+Custom colors apply only when the channel is in the live state. Status colors take precedence when a channel is stale, pending, in error, or uninitialized, ensuring operators can always identify abnormal conditions regardless of custom styling.
+
+Importing and Exporting Dashboards
+Dashboards can be exported as JSON files for backup, version control, or sharing between systems. To access the dashboard JSON click the top right dashboard menu Menu and select View JSON from the menu, then paste the JSON and save or save and publish the dashboard.
+
+Each dashboard JSON contains the component list, properties, and layout information needed to recreate the dashboard.
+
+Image Handling
+
+Images are not included in the JSON and must be re-uploaded when importing a dashboard.
+
+Dashboard Controls
+Keyboard Shortcuts
+Shortcut	Action
+Cmd-C	Copy
+Cmd-X	Cut
+Cmd-V	Paste
+Cmd-Z	Undo
+Cmd-Shift-Z	Redo
+Cmd-S	Save draft
+Cmd-Shift-E	Toggle edit mode
+Cmd-Shift-P	Lock/unlock zoom
+Cmd-Shift-A	Zoom-to-fit
+Cmd-A	Select all
+Escape	Deselect all
+Mouse Controls
+Action	Mac	Windows
+Select component	Click	Click
+Select multiple	Cmd + Click	Ctrl + Click
+Box select multiple	Shift + Drag	Shift + Drag
+Pan canvas	Drag background	Drag background
+Zoom	Mouse wheel	Mouse wheel
+Open context menu	Right click	Right click
+Focus component editor	Double click	Double click
+Alignment Tools
+When multiple components are selected, the Alignment Toolbar appears above the canvas with options to:
+
+Align horizontally: Left, center, or right align selected components
+Align vertically: Top, middle, or bottom align selected components
+Distribute: Space components evenly horizontally or vertically
+When moving or resizing components, alignment guidelines automatically appear to help snap components to the edges and centers of other components on the canvas.
+
+Right-Click Context Menus
+Right-click the dashboard list in the left sidebar for quick actions like Duplicate and Delete.
+
+Right-click the dashboard canvas to access context-sensitive actions. Available options depend on whether edit mode is active.
+
+Edit Mode Right-Click Menu
+Action	Description
+Save Draft	Save current changes without publishing
+Close Editor	Exit edit mode
+Zoom to Fit	Auto-zoom to fit all components
+Copy	Copy selected components
+Cut	Cut selected components
+Paste	Paste copied/cut components
+Delete	Delete selected components
+Undo	Undo last change
+Redo	Redo last undone change
+Viewing Mode Right-Click Menu
+Action	Description
+Unlock/Lock Zoom	Toggle zoom lock on/off
+Zoom to Fit	Auto-zoom to fit all components
+Edit	Enter edit mode
