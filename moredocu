@@ -1,0 +1,214 @@
+Alerts
+Alerts are a special kind of task used to indicate when some condition has been exceeded. See how alerts are displayed in the console.
+
+Alerts can be defined like:
+
+
+software |pressure_limit_active|:bool = False
+software |pressure|:f64
+
+alert pressure_exceeded:
+    severity = Severity.critical
+    arm = |pressure_limit_active|
+    trigger = |pressure| > 100.0
+Where the fields are:
+
+severity: the severity of this alert - a member of the Severity enum type describing how severe this exceedance is, typically for letting operators know how much they should worry about an alert going off
+arm (optional): an expression that evaluates to a boolean - whenever this condition evalutes to True, the alert is armed and will fire if the trigger condition evaluates to True.
+When arm is not specified, it is always True.
+trigger: an expression that evaluates to a boolean - whenever this condition evaluates to True while the alert is armed, the alert will fire
+Built-in Channels
+Alerts have the following built-in channels:
+
+|alert.<alert_name>.disable|:bool: a writeable channel allowing the alert to be disabled by an operator if set to True
+|alert.<alert_name>.severity|:Severity: a writeable channel indicating the severity of the alert - initiliazed to whatever is set in the severity field of the alert block
+|alert.<alert_name>.reset|:bool: a writeable channel that resets the fired_latch channel to False - this channel is "pulled low", so it will always be False after the alert executes
+|alert.<alert_name>.armed|:bool: (read-only) channel indicating the current evaluated result of the arm expression
+|alert.<alert_name>.triggered|:bool: (read-only) channel indicating the current evaluated result of the trigger expression
+|alert.<alert_name>.fired|:bool: (read-only) channel indicating that the alert is actively firing
+|alert.<alert_name>.fired_latch|:bool: (read-only) channel indicating that the alert has fired since the last time it was reset
+Behavior
+In effect, the alert above behaves identically to the following loop:
+
+
+loop pressure_exceeded:
+    |alert.pressure_exceeded.armed| = |pressure_limit_active|
+    |alert.pressure_exceeded.triggered| = (|pressure| > 100.000000)
+    |alert.pressure_exceeded.fired| = (not |alert.pressure_exceeded.disable| and (|alert.pressure_exceeded.armed| and |alert.pressure_exceeded.triggered|))
+    if |alert.pressure_exceeded.fired|:
+        |alert.pressure_exceeded.fired_latch| = True
+    elif |alert.pressure_exceeded.reset|:
+        |alert.pressure_exceeded.fired_latch| = False
+    |alert.pressure_exceeded.reset| = False
+System Alerts
+System alerts are built-in alerts that provide alerts for the Revel system. You may use Revel system alerts exactly as you would use your own user-defined alerts. System alerts have pre-defined behaviors and default severity levels set which can be modified as you choose. You may also disable system alerts with the disable channel. Some system alerts are disabled by default and must be explicitly enabled.
+
+
+const CYCLE: float = 0.01
+
+sw |abort|: bool = False
+system in |system_alert.no_commanders_connected.armed|:bool
+system in |system_alert.no_commanders_connected.fired|:bool
+system in |system_alert.no_commanders_connected.triggered|:bool
+
+# The no_commanders_connected alert will fire if there are no commanders
+# logged in or we have not heard from any logged in commander in the last second.
+system out |system_alert.no_commanders_connected.severity|:Severity = Severity.advisory
+system out |system_alert.no_commanders_connected.disable|:bool = False
+sw |no_commanders_connected_cycles|: int = 0
+
+
+sequence enable_no_commanders_connected_alert:
+    # Enable system alert to be critical if no commanders are connected
+    |system_alert.no_commanders_connected.severity| = Severity.critical
+    |system_alert.no_commanders_connected.disable| = False
+
+loop safing_if_no_commanders_connected:
+    # If we lose connectivity with commanders for 30 seconds, perform safing actions
+    if |system_alert.no_commanders_connected.fired|:
+        |no_commanders_connected_cycles| += 1
+    else:
+        |no_commanders_connected_cycles| = 0
+    if float(|no_commanders_connected_cycles|) * CYCLE > 30.0:
+        |abort| = True
+All system alerts are namespaced in telemetry with a system_alert prefix, some useful alerts:
+
+Alert Name	Default Severity	Default Enabled	Description
+system_alert.cycle_time_exceeded	Warning	True	The runtime has exceeded its control cycle time limit.
+system_alert.no_commanders_connected	Advisory	False	The number of logged in commanders has dropped to 0 or the last time we heard from any commander exceeds one second. Will only trigger after a commander has logged in first to prevent startup transients when deploying a system for the first time. Fires if no browser windows with a logged in commander are active. Must be opted-into by explicitly enabling the alert. It is strongly recommended to use this in conjunction with your own persistence durations of 30s or more.
+system_alert.runtime_ptp_desynced	Advisory	False	The runtime has lost sync with the PTP grandmaster. If no external GPS PTP reference is available, this means the RTOS lost PTP sync with the Application server in TwoBox configurations. Must be opted into by explicitly enabling the alert.
+system_alert.runtime_ptp_offset_too_large	Advisory	False	The runtime's PTP offset with the PTP grandmaster is larger than 100 milliseconds. Large offsets can indicate potential issues with the network configuration the Revel system is integrated on. Must be opted into by explicitly enabling the alert.
+system_alert.<device_name>_connection_lost	Warning	True	The DAQ device has lost connection with the Revel server. Each device has its own connection_lost alert.
+system_alert.<cDAQ/cRIO>_synced	Warning	True	The NI cDAQ or cRIO has lost sync with the PTP grandmaster. If no external GPS PTP reference is available, the Revel server acts as the grandmaster.
+system_alert.<cDAQ>_no_data	Advisory	False	The runtime has not received data from the NI cDAQ. This can indicate poor communication link with the cDAQ or serve as an alert for problems with data acquisition. Must be opted into by explicitly enabling the alert.
+system_alert.<cDAQ>_unexpected_num_samples	Advisory	False	The runtime was not able to read any samples from the NI cDAQ. This can indicate poor communication link with the cDAQ or serve as an alert for problems with data acquisition. Must be opted into by explicitly enabling the alert.
+
+Sequences
+Sequences are a kind of task that must be started. Once started, they execute to completion, typically over multiple execution cycles - this allows a set of serial operations with optional wait statements to introduce pauses between sets of actions. On the first execution cycle in which a sequence has been started, all code up until the first wait statement will be executed. Once the sequence reaches its end, it completes and waits to be started again.
+
+
+var x:i64 = 0
+var counter:int = 0
+
+loop counter_increment:
+    counter = counter + 1
+
+sequence incrementer:
+    wait 1.0 # wait 1 second
+    x += 1
+    wait until counter > 100 # wait until the value of the `counter` var exceeds 100
+    x += 2
+Built-in Channels
+Sequences come with the following built-in channels -
+
+|<sequence>.status|:Status : (read-only) a channel of the built-in Status enum type
+this indicates the current state of the sequence
+|<sequence>.command|:Cmd : a channel of the built-in Command enum type
+this allows the sequence to be started or interrupted
+|<sequence>.active_line_number|:i64 : (read-only) the line number corresponding to the current execution location
+|<sequence>.block_timer|:i64: (read-only) a channel used internally to track how long the sequence has been waiting
+|<sequence>.resume_block_index|:i64: (read-only) a channel used internally to track the current execution location of the sequence
+Controlling a Sequence
+Whenever the |<sequence>.command| channel is set, the value will be reset to Cmd.NONE at the end of the next execution cycle.
+
+Initially, the sequence status is Status.IDLE - the sequence can be started by setting |<sequence>.command| to Cmd.run. While the sequence is running, the status will be Status.running. If no other action is taken, the sequence will run until it reaches the end of the block, and the status will be set to Status.complete. It can be started again by sending another Cmd.run command. To return the sequence to Status.idle, a Cmd.reset command must be sent.
+
+While a sequence is running, it can be interrupted in one of three ways:
+
+Sending the Cmd.pause command - the sequence status will be set to Status.paused. If a Cmd.run command is sent, the sequence will resume from where it left off.
+Sending the Cmd.stop command - the sequence status will be set to Status.stopped. If a Cmd.run command is sent, the sequence will restart from the beginning.
+Sending the Cmd.reset command - the sequence status will be set to Status.idle. If a Cmd.run command is sent, the sequence will restart from the beginning.
+Sequence Self-Commanding
+Sequences may control themselves using the pause, stop, and reset keywords. The effect of these keywords is the same as the sequence receiving and responding to the corresponding command immediately.
+
+
+software |x|:int = 0
+
+sequence self_controller:
+    |x| += 1
+    pause # pause self - status will be set to Paused, will wait until the task receives a Cmd.run command before continuing
+
+    if |x| > 10:
+        stop # stop self - status will be set to Stopped, a run command will restart it from the beginning
+    elif |x| > 5:
+        reset # reset self - status will be set to Idle, a run command will restart it from the beginning
+
+    |x| += 1
+Sequences may not read or write to their own command or status channels.
+
+Sequence Orchestration
+Sequences are commonly "orchestrated" by other sequences - i.e., one sequence is placed in control of starting and stopping other sub-sequences. In this pattern, the following recipe can be useful for ensuring consistent control of sub-sequences:
+
+
+sequence orchestrator:
+    # At the start of the orchestrator, ensure all sequences are reset before continuing
+    |subsequence_A.command| = Cmd.reset
+    |subsequence_B.command| = Cmd.reset
+    wait until |subsequence_A.status| == Status.idle and |subsequence_B.status| == Status.idle
+
+    # Now, start your subsequences
+    |subsequence_A.command| = Cmd.run
+    wait 5.0
+    |subsequence_B.command| = Cmd.run
+
+    # Wait for them to complete
+    wait until |subsequence_A.status| == Status.complete and |subsequence_B.status| == Status.complete
+
+sequence subsequence_A:
+    wait CYCLE
+    # ... do things for a while
+
+sequence subsequence_B:
+    wait CYCLE
+    # ... do other things for a while
+Important
+
+Note that resetting the sequences above is crucial to the desired behavior if we intend to run the orchestrator sequence multiple times.
+
+Consider the scenario where sequences were not reset, then orchestrator was run once and subsequence_B reached nominal completion. The next time we run orchestrator, we'd encounter a bug: when we reach the final wait until, |subsequence_B.status| will already be complete from the previous run and orchestrator will finish immediately!
+
+This reasoning behind this behavior is due to the execution order of tasks - subsequence_B doesn't get a chance to respond to its new command until after the orchestrator yields. So although the orchestrator has set |subsequence_B.command| to Cmd.run, subsequence_B has not yet had a chance to execute since that change, and so its status will not have changed.
+
+The key learning: always reset your sequences when using orchestrators!
+
+Wait Statements
+wait
+A wait statement specifies the amount of time, in seconds, for which to pause before continuing. Wait time could be a constant expression and must be a multiple of CYCLE. For example, using 10hz cycle:
+
+wait 1.0 # valid
+wait 0.33 # invalid, wait duration must be a multiple of a CYCLE
+CYCLE * 50.0 + CYCLE # valid
+
+sequence wait_seq:
+    |x|:int = 1
+    wait 2.0 # wait 2 seconds
+    |x|:int = 2
+    wait CYCLE # wait one execution cycle
+    |x|:int = 3
+    wait 2.0*CYCLE # wait two execution cycles
+    |x|:int = 4
+wait until
+A wait until statement specifies a condition - the sequence will not continue until that condition is True.
+
+
+sequence wait_until_seq:
+    |x|:int = 1
+    wait until |y|:float > 10.0 # we'll continue once |y| is greater than 10.0
+    |x|:int = 2
+timeout
+A timeout branch can be added to a wait until to specify a timeout value. If the timeout duration elapses without the wait until condition becoming True, the code in the timeout branch (if any) is executed and the sequence continues on.
+
+A timeout value is specified by appending a colon (':') to the wait until statement, then adding an indented timeout <num>: on the following line. Finally, the code to be executed is nested below the timeout statement. If no timeout-specific code is desired, a pass statement is sufficient.
+
+
+sequence wait_until_timeout_seq1:
+    |x|:int = 1
+    wait until |y|:float > 10.0:
+        timeout 5.0:
+            |x|:int = 3
+
+sequence wait_until_timeout_seq2:
+    wait until |y|:float > 8.0:
+        timeout 5.0:
+            pass
+Similar to the wait statement, the timeout value may be a constant expression and must be a multiple of CYCLE.
