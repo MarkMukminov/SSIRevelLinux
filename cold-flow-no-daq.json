@@ -1,0 +1,7 @@
+{
+  "system_name": "ColdFlowNoDAQ",
+  "files": [
+    "cold-flow-no-daq/cold_flow_no_daq.rvl"
+  ],
+  "devices": []
+}

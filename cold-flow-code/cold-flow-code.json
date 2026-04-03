@@ -1,7 +1,7 @@
 {
   "system_name": "ColdFlowSystem",
   "files": [
-    "cold-flow-code/cold_flow_test.rvl"
+    "cold_flow_test.rvl"
   ],
   "devices": [
     {
