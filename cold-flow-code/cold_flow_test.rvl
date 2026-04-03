@@ -254,10 +254,10 @@ loop ignition_sequence:
         if |Dry_Run_Active| and |Ignition_Ready|:
             |Dry_Run_Passed| = True
 
-    #LIVE FIRE: only when ready, command consumed regardless
+    #LIVE FIRE: only when ready AND not in dry run, command consumed regardless
     if |Ignition_Fire_Cmd|:
         |Ignition_Fire_Cmd| = False
-        if |Ignition_Ready|:
+        if |Ignition_Ready| and not |Dry_Run_Active|:
             |Ignition_Output| = True
             |Ignition_Fired| = True
 
