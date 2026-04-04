@@ -14,70 +14,70 @@ port1_commandable: true
 channel_settings:
 - is_enabled: false
   revel_name: ch0
-  address: slot5_DigitalInputOutput0
+  address: slot2_DigitalInputOutput0
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch1
-  address: slot5_DigitalInputOutput1
+  address: slot2_DigitalInputOutput1
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch2
-  address: slot5_DigitalInputOutput2
+  address: slot2_DigitalInputOutput2
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch3
-  address: slot5_DigitalInputOutput3
+  address: slot2_DigitalInputOutput3
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch4
-  address: slot5_DigitalInputOutput4
+  address: slot2_DigitalInputOutput4
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch5
-  address: slot5_DigitalInputOutput5
+  address: slot2_DigitalInputOutput5
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch6
-  address: slot5_DigitalInputOutput6
+  address: slot2_DigitalInputOutput6
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: false
   revel_name: ch7
-  address: slot5_DigitalInputOutput7
+  address: slot2_DigitalInputOutput7
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: servo0
-  address: slot5_DigitalInputOutput8
+  address: slot2_DigitalInputOutput8
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: servo1
-  address: slot5_DigitalInputOutput9
+  address: slot2_DigitalInputOutput9
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''

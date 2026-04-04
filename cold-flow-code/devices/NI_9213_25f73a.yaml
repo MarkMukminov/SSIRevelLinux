@@ -9,7 +9,7 @@ sample_rate_hz: 4.6875
 channel_settings:
 - is_enabled: true
   revel_name: tc0
-  address: slot7_Specialty0
+  address: slot8_Specialty0
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -18,7 +18,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc1
-  address: slot7_Specialty1
+  address: slot8_Specialty1
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -27,7 +27,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc2
-  address: slot7_Specialty2
+  address: slot8_Specialty2
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -36,7 +36,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc3
-  address: slot7_Specialty3
+  address: slot8_Specialty3
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -45,7 +45,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc4
-  address: slot7_Specialty4
+  address: slot8_Specialty4
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -54,7 +54,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc5
-  address: slot7_Specialty5
+  address: slot8_Specialty5
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -63,7 +63,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc6
-  address: slot7_Specialty6
+  address: slot8_Specialty6
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -72,7 +72,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc7
-  address: slot7_Specialty7
+  address: slot8_Specialty7
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -81,7 +81,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc8
-  address: slot7_Specialty8
+  address: slot8_Specialty8
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -90,7 +90,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc9
-  address: slot7_Specialty9
+  address: slot8_Specialty9
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -99,7 +99,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc10
-  address: slot7_Specialty10
+  address: slot8_Specialty10
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -108,7 +108,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc11
-  address: slot7_Specialty11
+  address: slot8_Specialty11
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -117,7 +117,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc12
-  address: slot7_Specialty12
+  address: slot8_Specialty12
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -126,7 +126,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc13
-  address: slot7_Specialty13
+  address: slot8_Specialty13
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -135,7 +135,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc14
-  address: slot7_Specialty14
+  address: slot8_Specialty14
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
@@ -144,7 +144,7 @@ channel_settings:
   temperature_units: Fahrenheit
 - is_enabled: true
   revel_name: tc15
-  address: slot7_Specialty15
+  address: slot8_Specialty15
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''

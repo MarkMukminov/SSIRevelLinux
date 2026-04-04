@@ -6,7 +6,7 @@ sample_rate_hz_per_channel: 10000.0
 adc_timing_mode: High Resolution
 channel_settings:
 - is_enabled: true
-  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch0
+  revel_name: lc0
   address: slot4_Specialty0
   scaling_m: 1.0
   scaling_b: 0.0
@@ -24,7 +24,7 @@ channel_settings:
   resistance_config: 4_wire
   resistance_excitation_current: 0.0005
 - is_enabled: true
-  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch1
+  revel_name: lc1
   address: slot4_Specialty1
   scaling_m: 1.0
   scaling_b: 0.0
@@ -42,7 +42,7 @@ channel_settings:
   resistance_config: 4_wire
   resistance_excitation_current: 0.0005
 - is_enabled: true
-  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch2
+  revel_name: lc2
   address: slot4_Specialty2
   scaling_m: 1.0
   scaling_b: 0.0
@@ -60,7 +60,7 @@ channel_settings:
   resistance_config: 4_wire
   resistance_excitation_current: 0.0005
 - is_enabled: true
-  revel_name: NI_CDAQ_CHASSIS_5944be_NI_9219_d9y4gbnz2hs_ch3
+  revel_name: lc3
   address: slot4_Specialty3
   scaling_m: 1.0
   scaling_b: 0.0

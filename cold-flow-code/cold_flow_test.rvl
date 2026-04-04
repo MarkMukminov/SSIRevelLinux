@@ -54,9 +54,9 @@ hwin |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
 hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 
 #HARDWARE OUTPUT DECLARATIONS
-hwout |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
-hwout |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
-hwout |sv2.value|:bool = False    #Ignition_Output: e-match trigger
+sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
+sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
+sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
 
 #SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
 sw |PT_OT.value|:float = 0.0

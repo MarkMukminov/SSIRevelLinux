@@ -9,224 +9,224 @@ terminal_config: RSE
 channel_settings:
 - is_enabled: true
   revel_name: pt0
-  address: slot1_AnalogInput0
+  address: slot5_AnalogInput0
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt1
-  address: slot1_AnalogInput1
+  address: slot5_AnalogInput1
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt2
-  address: slot1_AnalogInput2
+  address: slot5_AnalogInput2
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt3
-  address: slot1_AnalogInput3
+  address: slot5_AnalogInput3
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt4
-  address: slot1_AnalogInput4
+  address: slot5_AnalogInput4
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt5
-  address: slot1_AnalogInput5
+  address: slot5_AnalogInput5
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt6
-  address: slot1_AnalogInput6
+  address: slot5_AnalogInput6
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt7
-  address: slot1_AnalogInput7
+  address: slot5_AnalogInput7
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt8
-  address: slot1_AnalogInput8
+  address: slot5_AnalogInput8
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt9
-  address: slot1_AnalogInput9
+  address: slot5_AnalogInput9
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt10
-  address: slot1_AnalogInput10
+  address: slot5_AnalogInput10
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt11
-  address: slot1_AnalogInput11
+  address: slot5_AnalogInput11
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt12
-  address: slot1_AnalogInput12
+  address: slot5_AnalogInput12
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt13
-  address: slot1_AnalogInput13
+  address: slot5_AnalogInput13
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt14
-  address: slot1_AnalogInput14
+  address: slot5_AnalogInput14
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt15
-  address: slot1_AnalogInput15
+  address: slot5_AnalogInput15
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt16
-  address: slot1_AnalogInput16
+  address: slot5_AnalogInput16
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt17
-  address: slot1_AnalogInput17
+  address: slot5_AnalogInput17
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt18
-  address: slot1_AnalogInput18
+  address: slot5_AnalogInput18
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt19
-  address: slot1_AnalogInput19
+  address: slot5_AnalogInput19
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt20
-  address: slot1_AnalogInput20
+  address: slot5_AnalogInput20
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt21
-  address: slot1_AnalogInput21
+  address: slot5_AnalogInput21
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt22
-  address: slot1_AnalogInput22
+  address: slot5_AnalogInput22
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt23
-  address: slot1_AnalogInput23
+  address: slot5_AnalogInput23
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt24
-  address: slot1_AnalogInput24
+  address: slot5_AnalogInput24
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt25
-  address: slot1_AnalogInput25
+  address: slot5_AnalogInput25
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt26
-  address: slot1_AnalogInput26
+  address: slot5_AnalogInput26
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt27
-  address: slot1_AnalogInput27
+  address: slot5_AnalogInput27
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt28
-  address: slot1_AnalogInput28
+  address: slot5_AnalogInput28
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt29
-  address: slot1_AnalogInput29
+  address: slot5_AnalogInput29
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt30
-  address: slot1_AnalogInput30
+  address: slot5_AnalogInput30
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: pt31
-  address: slot1_AnalogInput31
+  address: slot5_AnalogInput31
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''

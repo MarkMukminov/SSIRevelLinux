@@ -11,8 +11,7 @@ var OPEN_DUTY_CYCLE:float = max( min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WID
 
 hwout |servo0.command|:bool = True
 hwout |servo0.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0) # convert to Hz
-hwout |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE
-
+``````````````````1  
 hwout |servo1.command|:bool = True
 hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0) # convert to Hz
 hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
