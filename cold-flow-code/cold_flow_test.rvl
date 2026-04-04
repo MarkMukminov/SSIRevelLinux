@@ -53,10 +53,17 @@ hwin |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
 hwin |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
 hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 
-#HARDWARE OUTPUT DECLARATIONS
+#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
 sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
 sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
 sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
+hwout |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
+
+#HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
+hwout |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
+hwout |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
+hwout |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
+hwout |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
 
 #SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
 sw |PT_OT.value|:float = 0.0
@@ -81,6 +88,14 @@ sw |EStop_Cmd|:bool = False
 sw |Reset_Abort|:bool = False
 sw |Ox_Flowing|:bool = False
 sw |Fuel_Flowing|:bool = False
+
+#DIRECT SOLENOID COMMAND CHANNELS (slot 1 + sv3 — operator controlled, abort enforced)
+#[VERIFY: label each with physical valve name before ops]
+sw |SV3.open|:bool = False
+sw |SV10.open|:bool = False
+sw |SV11.open|:bool = False
+sw |SV12.open|:bool = False
+sw |SV13.open|:bool = False
 
 #IGNITION CHANNELS
 sw |Ignition_Armed|:bool = False    #operator explicitly arms ignition
@@ -203,10 +218,15 @@ loop monitor_safety:
         |Abort_Active| = True
         |EStop_Cmd| = False
 
-    #ABORT RESPONSE: close all flow paths
+    #ABORT RESPONSE: close all flow paths including direct solenoids
     if |Abort_Active|:
         |MBV_O.open| = False
         |MBV_F.open| = False
+        |SV3.open| = False
+        |SV10.open| = False
+        |SV11.open| = False
+        |SV12.open| = False
+        |SV13.open| = False
 
     #ABORT RESET: clear abort when pressure is confirmed safe
     if |Reset_Abort| and |System_Max_P| < MAX_SAFE_P:
@@ -267,3 +287,8 @@ loop write_hardware:
     |sv0.value| = |MBV_O.open|
     |sv1.value| = |MBV_F.open|
     |sv2.value| = |Ignition_Output|
+    |sv3.value| = |SV3.open|
+    |sv10.value| = |SV10.open|
+    |sv11.value| = |SV11.open|
+    |sv12.value| = |SV12.open|
+    |sv13.value| = |SV13.open|
