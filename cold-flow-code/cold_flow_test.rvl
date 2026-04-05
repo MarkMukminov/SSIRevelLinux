@@ -12,8 +12,8 @@
 # LC3    ← lc3  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
 #
 # Valve channels (COMMANDED position — no position feedback):
-# MBV_O.open → sv0  | Relay Out | bool | Main bleed valve, oxidizer
-# MBV_F.open → sv1  | Relay Out | bool | Main bleed valve, fuel
+# MBV_O.open → servo0 | Servo PWM | duty cycle | NI 9401 slot 2 | Main bleed valve, oxidizer
+# MBV_F.open → servo1 | Servo PWM | duty cycle | NI 9401 slot 2 | Main bleed valve, fuel
 # Ignition_Output → sv2 | Relay Out | bool | E-match trigger, 1-cycle pulse
 #
 # ALERTS (replace manual warning/overpressure flags):
@@ -43,6 +43,14 @@ const CYCLE:float = 0.1
 const MAX_SAFE_P: float = 1240.0
 const WARN_P: float = 1150.0
 
+#SERVO PWM CONSTANTS (MBV valve actuation via NI 9401)
+const PULSE_PERIOD_MS:float = 5.0
+const PULSE_WIDTH_MIN_MS:float = 0.5    #0 deg = fully closed
+const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
+const PULSE_OPEN_FRACTION:float = 0.74  #74% of full travel = open position
+const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
+var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
+
 #HARDWARE INPUT DECLARATIONS (analog inputs from NI hardware)
 hwin |pt0|:float   #NI 9205 slot 5, ai0 — oxidizer tank pressure transducer
 hwin |pt1|:float   #NI 9205 slot 5, ai1 — fuel tank pressure transducer
@@ -53,11 +61,17 @@ hwin |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
 hwin |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
 hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 
-#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
-sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
-sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
+#HARDWARE OUTPUT DECLARATIONS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM control)
+hwout |servo0.command|:bool = True
+hwout |servo0.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE
+hwout |servo1.command|:bool = True
+hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
+
+#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv2–sv3)
 sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
-sw |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
+sw |sv3.value|:bool = False    #Slot 3 ch3 — [VERIFY: assign to physical valve]
 
 #HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
 sw |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
@@ -284,8 +298,16 @@ loop ignition_sequence:
 
 #HARDWARE OUTPUT MAPPING
 loop write_hardware:
-    |sv0.value| = |MBV_O.open|
-    |sv1.value| = |MBV_F.open|
+    #MBV servo control — duty cycle drives valve angle (NI 9401 slot 2)
+    if |MBV_O.open|:
+        |servo0.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
+    if |MBV_F.open|:
+        |servo1.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
+    #Direct relay outputs (NI 9482 slot 3 + slot 1)
     |sv2.value| = |Ignition_Output|
     |sv3.value| = |SV3.open|
     |sv10.value| = |SV10.open|

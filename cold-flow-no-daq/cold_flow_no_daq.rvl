@@ -16,8 +16,8 @@
 # LC3    ← lc3  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
 #
 # Valve channels (COMMANDED position — no position feedback):
-# MBV_O.open → sv0.value | Relay Out | bool | Main bleed valve, oxidizer
-# MBV_F.open → sv1.value | Relay Out | bool | Main bleed valve, fuel
+# MBV_O.open → servo0.duty_cycle | Servo PWM | duty cycle | NI 9401 slot 2 | Main bleed valve, oxidizer
+# MBV_F.open → servo1.duty_cycle | Servo PWM | duty cycle | NI 9401 slot 2 | Main bleed valve, fuel
 # Ignition_Output → sv2.value | Relay Out | bool | E-match trigger, 1-cycle pulse
 #
 # ALERTS (replace manual warning/overpressure flags):
@@ -47,6 +47,14 @@ const CYCLE:float = 0.1
 const MAX_SAFE_P: float = 1240.0
 const WARN_P: float = 1150.0
 
+#SERVO PWM CONSTANTS (MBV valve actuation via NI 9401)
+const PULSE_PERIOD_MS:float = 5.0
+const PULSE_WIDTH_MIN_MS:float = 0.5    #0 deg = fully closed
+const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
+const PULSE_OPEN_FRACTION:float = 0.74  #74% of full travel = open position
+const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
+var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
+
 #SIMULATED HARDWARE INPUT CHANNELS (sw — manually settable in Revel UI)
 #In the real hardware version these are hwin channels driven by the NI cDAQ.
 sw |pt0|:float = 0.0   #simulates NI 9205 ai0 — oxidizer tank pressure (PSI)
@@ -58,9 +66,9 @@ sw |lc1|:float = 0.0   #simulates NI 9219 ai1 — load cell ch1 (raw)
 sw |lc2|:float = 0.0   #simulates NI 9219 ai2 — load cell ch2 (raw)
 sw |lc3|:float = 0.0   #simulates NI 9219 ai3 — load cell ch3 (raw)
 
-#SIMULATED HARDWARE OUTPUT CHANNELS (sw — no relays driven)
-sw |sv0.value|:bool = False    #simulates MBV_O relay
-sw |sv1.value|:bool = False    #simulates MBV_F relay
+#SIMULATED HARDWARE OUTPUT CHANNELS (sw — no hardware driven)
+sw |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE  #simulates MBV_O servo position (NI 9401)
+sw |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE  #simulates MBV_F servo position (NI 9401)
 sw |sv2.value|:bool = False    #simulates Ignition_Output relay
 sw |sv3.value|:bool = False    #simulates slot 3 ch3 relay
 sw |sv10.value|:bool = False   #simulates slot 1 ch0 relay
@@ -288,8 +296,16 @@ loop ignition_sequence:
 
 #HARDWARE OUTPUT MAPPING
 loop write_hardware:
-    |sv0.value| = |MBV_O.open|
-    |sv1.value| = |MBV_F.open|
+    #MBV servo control — duty cycle drives valve angle (simulated, matches real hardware logic)
+    if |MBV_O.open|:
+        |servo0.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
+    if |MBV_F.open|:
+        |servo1.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
+    #Direct relay outputs (simulated)
     |sv2.value| = |Ignition_Output|
     |sv3.value| = |SV3.open|
     |sv10.value| = |SV10.open|
