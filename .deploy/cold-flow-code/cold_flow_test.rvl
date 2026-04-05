@@ -1,11 +1,7 @@
 #SENSOR MANIFEST
 # Every sensor channel listed here. Operators must know exactly what they are reading.
 #
-# NO-DAQ VERSION: All hardware channels replaced with sw channels (manually settable in UI).
-# To switch to real hardware: deploy cold-flow-code.json instead — zero GUI reassignment needed.
-# All channel names are identical between this file and cold_flow_test.rvl.
-#
-# HARDWARE CHANNEL MAPPING (for reference — these are sw channels here, not wired):
+# HARDWARE CHANNEL MAPPING (verify against your wiring before ops):
 # PT_OT  ← pt0  | Pressure    | PSI  | 0 – 1300 PSI  | Oxidizer tank pressure transducer
 # PT_FT  ← pt1  | Pressure    | PSI  | 0 – 1300 PSI  | Fuel tank pressure transducer
 # PT5    ← pt2  | Pressure    | PSI  | 0 – 1300 PSI  | [VERIFY: confirm physical location]
@@ -16,9 +12,9 @@
 # LC3    ← lc3  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
 #
 # Valve channels (COMMANDED position — no position feedback):
-# MBV_O.open → sv0.value | Relay Out | bool | Main bleed valve, oxidizer
-# MBV_F.open → sv1.value | Relay Out | bool | Main bleed valve, fuel
-# Ignition_Output → sv2.value | Relay Out | bool | E-match trigger, 1-cycle pulse
+# MBV_O.open → sv0  | Relay Out | bool | Main bleed valve, oxidizer
+# MBV_F.open → sv1  | Relay Out | bool | Main bleed valve, fuel
+# Ignition_Output → sv2 | Relay Out | bool | E-match trigger, 1-cycle pulse
 #
 # ALERTS (replace manual warning/overpressure flags):
 # alert.warn_pt_ot.fired       | warning  | PT_OT > WARN_P
@@ -33,7 +29,7 @@
 #   WARN_P      = 1150 PSI  — caution band, operator awareness
 #   MAX_SAFE_P  = 1240 PSI  — hard limit, triggers automatic abort
 #
-# HARDWARE (for reference — not connected in this no-DAQ build):
+# HARDWARE:
 # NI cDAQ-9189 chassis at 172.16.23.1
 # Slot 1: NI 9482 — 4ch Relay Output (sv10–sv13)
 # Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
@@ -47,26 +43,27 @@ const CYCLE:float = 0.1
 const MAX_SAFE_P: float = 1240.0
 const WARN_P: float = 1150.0
 
-#SIMULATED HARDWARE INPUT CHANNELS (sw — manually settable in Revel UI)
-#In the real hardware version these are hwin channels driven by the NI cDAQ.
-sw |pt0|:float = 0.0   #simulates NI 9205 ai0 — oxidizer tank pressure (PSI)
-sw |pt1|:float = 0.0   #simulates NI 9205 ai1 — fuel tank pressure (PSI)
-sw |pt2|:float = 0.0   #simulates NI 9205 ai2 — secondary pressure point (PSI)
-sw |tc0|:float = 70.0  #simulates NI 9213 ai0 — thermocouple Type K (degF)
-sw |lc0|:float = 0.0   #simulates NI 9219 ai0 — load cell ch0 (raw)
-sw |lc1|:float = 0.0   #simulates NI 9219 ai1 — load cell ch1 (raw)
-sw |lc2|:float = 0.0   #simulates NI 9219 ai2 — load cell ch2 (raw)
-sw |lc3|:float = 0.0   #simulates NI 9219 ai3 — load cell ch3 (raw)
+#HARDWARE INPUT DECLARATIONS (analog inputs from NI hardware)
+hwin |pt0|:float   #NI 9205 slot 5, ai0 — oxidizer tank pressure transducer
+hwin |pt1|:float   #NI 9205 slot 5, ai1 — fuel tank pressure transducer
+hwin |pt2|:float   #NI 9205 slot 5, ai2 — secondary pressure point [VERIFY]
+hwin |tc0|:float   #NI 921s3 slot 8, ai0 — thermocouple Type K, degF [VERIFY location]
+sw |lc0|:float   #NI 9219 slot 4, ai0 — load cell ch0 [VERIFY assignment]
+sw |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
+sw |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
+sw |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 
-#SIMULATED HARDWARE OUTPUT CHANNELS (sw — no relays driven)
-sw |sv0.value|:bool = False    #simulates MBV_O relay
-sw |sv1.value|:bool = False    #simulates MBV_F relay
-sw |sv2.value|:bool = False    #simulates Ignition_Output relay
-sw |sv3.value|:bool = False    #simulates slot 3 ch3 relay
-sw |sv10.value|:bool = False   #simulates slot 1 ch0 relay
-sw |sv11.value|:bool = False   #simulates slot 1 ch1 relay
-sw |sv12.value|:bool = False   #simulates slot 1 ch2 relay
-sw |sv13.value|:bool = False   #simulates slot 1 ch3 relay
+#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
+sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
+sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
+sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
+sw |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
+
+#HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
+sw |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
+sw |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
+sw |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
+sw |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
 
 #SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
 sw |PT_OT.value|:float = 0.0
@@ -139,7 +136,7 @@ loop read_hardware:
 
 
 #PRESSURE WARNING ALERTS
-#Replace manual Warn_* flags. Operator sees per-sensor warnings in the alert console.
+#Operator sees per-sensor warnings in the alert console.
 #Built-in channels: alert.<name>.fired, .fired_latch, .severity, .disable, .reset
 alert warn_pt_ot:
     severity = Severity.warning
@@ -153,8 +150,7 @@ alert warn_pt5:
     severity = Severity.warning
     trigger = |PT5.value| > WARN_P
 
-#OVERPRESSURE ALERTS
-#Replace manual Overpressure_* flags. Critical severity — these trigger abort.
+#OVERPRESSURE ALERTS — critical severity, these conditions trigger abort
 alert overpressure_pt_ot:
     severity = Severity.critical
     trigger = |PT_OT.value| > MAX_SAFE_P

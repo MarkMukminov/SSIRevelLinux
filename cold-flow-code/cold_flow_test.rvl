@@ -47,11 +47,11 @@ const WARN_P: float = 1150.0
 hwin |pt0|:float   #NI 9205 slot 5, ai0 — oxidizer tank pressure transducer
 hwin |pt1|:float   #NI 9205 slot 5, ai1 — fuel tank pressure transducer
 hwin |pt2|:float   #NI 9205 slot 5, ai2 — secondary pressure point [VERIFY]
-hwin |tc0|:float   #NI 9213 slot 8, ai0 — thermocouple Type K, degF [VERIFY location]
-hwin |lc0|:float   #NI 9219 slot 4, ai0 — load cell ch0 [VERIFY assignment]
-hwin |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
-hwin |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
-hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
+hwin |tc0|:float   #NI 921s3 slot 8, ai0 — thermocouple Type K, degF [VERIFY location]
+sw |lc0|:float   #NI 9219 slot 4, ai0 — load cell ch0 [VERIFY assignment]
+sw |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
+sw |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
+sw |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 
 #HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
 sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
