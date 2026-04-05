@@ -57,13 +57,13 @@ hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
 sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
 sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
 sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
-hwout |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
+sw |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
 
 #HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
-hwout |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
-hwout |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
-hwout |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
-hwout |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
+sw |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
+sw |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
+sw |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
+sw |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
 
 #SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
 sw |PT_OT.value|:float = 0.0
