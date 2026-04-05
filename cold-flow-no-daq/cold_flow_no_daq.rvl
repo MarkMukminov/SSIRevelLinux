@@ -245,6 +245,15 @@ loop monitor_safety:
         |SV11.open| = False
         |SV12.open| = False
         |SV13.open| = False
+        #Force hardware outputs closed immediately (redundant safety)
+        |sv0| = False
+        |sv1| = False
+        |sv2| = False
+        |sv3| = False
+        |sv10| = False
+        |sv11| = False
+        |sv12| = False
+        |sv13| = False
 
     #ABORT RESET: clear abort when pressure is confirmed safe
     if |Reset_Abort| and |System_Max_P| < MAX_SAFE_P:
@@ -312,11 +321,11 @@ loop write_hardware:
     else:
         |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
     #Direct relay outputs (simulated)
-    |sv0.value| = |SV0.open|
-    |sv1.value| = |SV1.open|
-    |sv2.value| = |Ignition_Output|
-    |sv3.value| = |SV3.open|
-    |sv10.value| = |SV10.open|
-    |sv11.value| = |SV11.open|
-    |sv12.value| = |SV12.open|
-    |sv13.value| = |SV13.open|
+    |sv0| = |SV0.open|
+    |sv1| = |SV1.open|
+    |sv2| = |Ignition_Output|
+    |sv3| = |SV3.open|
+    |sv10| = |SV10.open|
+    |sv11| = |SV11.open|
+    |sv12| = |SV12.open|
+    |sv13| = |SV13.open|
