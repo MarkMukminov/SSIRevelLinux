@@ -69,7 +69,9 @@ hwout |servo1.command|:bool = True
 hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
 hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
-#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv2–sv3)
+#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
+sw |sv0.value|:bool = False    #24V solenoid plunger — operator controlled
+sw |sv1.value|:bool = False    #24V solenoid plunger — operator controlled
 sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
 sw |sv3.value|:bool = False    #Slot 3 ch3 — [VERIFY: assign to physical valve]
 
@@ -103,8 +105,10 @@ sw |Reset_Abort|:bool = False
 sw |Ox_Flowing|:bool = False
 sw |Fuel_Flowing|:bool = False
 
-#DIRECT SOLENOID COMMAND CHANNELS (slot 1 + sv3 — operator controlled, abort enforced)
+#DIRECT SOLENOID COMMAND CHANNELS (sv0, sv1, sv3, sv10-sv13 — operator controlled, abort enforced)
 #[VERIFY: label each with physical valve name before ops]
+sw |SV0.open|:bool = False    #sv0 command mirror (for abort enforcement)
+sw |SV1.open|:bool = False    #sv1 command mirror (for abort enforcement)
 sw |SV3.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
@@ -236,6 +240,8 @@ loop monitor_safety:
     if |Abort_Active|:
         |MBV_O.open| = False
         |MBV_F.open| = False
+        |SV0.open| = False
+        |SV1.open| = False
         |SV3.open| = False
         |SV10.open| = False
         |SV11.open| = False
@@ -308,6 +314,8 @@ loop write_hardware:
     else:
         |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
     #Direct relay outputs (NI 9482 slot 3 + slot 1)
+    |sv0.value| = |SV0.open|
+    |sv1.value| = |SV1.open|
     |sv2.value| = |Ignition_Output|
     |sv3.value| = |SV3.open|
     |sv10.value| = |SV10.open|

@@ -69,6 +69,8 @@ sw |lc3|:float = 0.0   #simulates NI 9219 ai3 — load cell ch3 (raw)
 #SIMULATED HARDWARE OUTPUT CHANNELS (sw — no hardware driven)
 sw |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE  #simulates MBV_O servo position (NI 9401)
 sw |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE  #simulates MBV_F servo position (NI 9401)
+sw |sv0.value|:bool = False    #simulates 24V solenoid plunger
+sw |sv1.value|:bool = False    #simulates 24V solenoid plunger
 sw |sv2.value|:bool = False    #simulates Ignition_Output relay
 sw |sv3.value|:bool = False    #simulates slot 3 ch3 relay
 sw |sv10.value|:bool = False   #simulates slot 1 ch0 relay
@@ -100,8 +102,10 @@ sw |Reset_Abort|:bool = False
 sw |Ox_Flowing|:bool = False
 sw |Fuel_Flowing|:bool = False
 
-#DIRECT SOLENOID COMMAND CHANNELS (slot 1 + sv3 — operator controlled, abort enforced)
+#DIRECT SOLENOID COMMAND CHANNELS (sv0, sv1, sv3, sv10-sv13 — operator controlled, abort enforced)
 #[VERIFY: label each with physical valve name before ops]
+sw |SV0.open|:bool = False    #sv0 command mirror (for abort enforcement)
+sw |SV1.open|:bool = False    #sv1 command mirror (for abort enforcement)
 sw |SV3.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
@@ -234,6 +238,8 @@ loop monitor_safety:
     if |Abort_Active|:
         |MBV_O.open| = False
         |MBV_F.open| = False
+        |SV0.open| = False
+        |SV1.open| = False
         |SV3.open| = False
         |SV10.open| = False
         |SV11.open| = False
@@ -306,6 +312,8 @@ loop write_hardware:
     else:
         |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
     #Direct relay outputs (simulated)
+    |sv0.value| = |SV0.open|
+    |sv1.value| = |SV1.open|
     |sv2.value| = |Ignition_Output|
     |sv3.value| = |SV3.open|
     |sv10.value| = |SV10.open|
