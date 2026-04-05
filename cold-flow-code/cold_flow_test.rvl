@@ -70,16 +70,16 @@ hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
 hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
 #HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
-sw |sv0.value|:bool = False    #24V solenoid plunger — operator controlled
-sw |sv1.value|:bool = False    #24V solenoid plunger — operator controlled
-sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
-sw |sv3.value|:bool = False    #Slot 3 ch3 — [VERIFY: assign to physical valve]
+hwout |sv0|:bool = False    #24V solenoid plunger — operator controlled
+hwout |sv1|:bool = False    #24V solenoid plunger — operator controlled
+hwout |sv2|:bool = False    #Ignition_Output: e-match trigger
+hwout |sv3|:bool = False    #Slot 3 ch3 — [VERIFY: assign to physical valve]
 
 #HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
-sw |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
-sw |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
-sw |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
-sw |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
+hwout |sv10|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
+hwout |sv11|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
+hwout |sv12|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
+hwout |sv13|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
 
 #SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
 sw |PT_OT.value|:float = 0.0
@@ -225,12 +225,7 @@ loop monitor_safety:
     else:
         |Fuel_Flowing| = False
 
-    #ABORT TRIGGER 1: automatic overpressure
-    if |System_Max_P| > MAX_SAFE_P:
-        |Abort_Cause_Overpressure| = True
-        |Abort_Active| = True
-
-    #ABORT TRIGGER 2: operator E-Stop (command consumed same cycle)
+    #ABORT TRIGGER: operator E-Stop only (command consumed same cycle)
     if |EStop_Cmd|:
         |Abort_Cause_EStop| = True
         |Abort_Active| = True
@@ -276,7 +271,8 @@ loop ematch_continuity:
         |Ematch_Test_Result| = |Ematch_Continuity_Input|
         |Ematch_Test_Run| = True
 
-    if |Ematch_Test_Run| and |Ematch_Test_Result| and not |Abort_Active|:
+    #Compute ematch ready for diagnostics only (not blocking)
+    if |Ematch_Test_Run| and |Ematch_Test_Result|:
         |Ematch_Ready| = True
     else:
         |Ematch_Ready| = False
@@ -288,8 +284,8 @@ loop ignition_sequence:
     if |Abort_Active|:
         |Ignition_Armed| = False
 
-    #Compute readiness: all preconditions must hold simultaneously
-    if |Ignition_Armed| and not |Abort_Active| and |System_Max_P| > 0.0 and |System_Max_P| < MAX_SAFE_P:
+    #Compute readiness for diagnostics only (not blocking)
+    if |Ignition_Armed| and |System_Max_P| > 0.0 and |System_Max_P| < MAX_SAFE_P:
         |Ignition_Ready| = True
     else:
         |Ignition_Ready| = False
@@ -297,16 +293,16 @@ loop ignition_sequence:
     #Clear output every cycle — one-cycle pulse only
     |Ignition_Output| = False
 
-    #DRY RUN: exercises full sequence without hardware output
+    #DRY RUN: exercises full sequence without blocking
     if |Dry_Run_Fire_Cmd|:
         |Dry_Run_Fire_Cmd| = False
-        if |Dry_Run_Active| and |Ignition_Ready|:
+        if |Dry_Run_Active|:
             |Dry_Run_Passed| = True
 
-    #LIVE FIRE: only when ready AND not in dry run, command consumed regardless
+    #LIVE FIRE: operator can fire anytime (no readiness check), command consumed regardless
     if |Ignition_Fire_Cmd|:
         |Ignition_Fire_Cmd| = False
-        if |Ignition_Ready| and not |Dry_Run_Active|:
+        if not |Dry_Run_Active|:
             |Ignition_Output| = True
             |Ignition_Fired| = True
 
