@@ -56,10 +56,10 @@ sw |PT_OT|:float = 0.0
 sw |PT_FT|:float = 0.0
 sw |PT5|:float = 0.0
 sw |TC1|:float = 70.0
-sw |LC0|:float = 0.0
-sw |LC1|:float = 0.0
-sw |LC2|:float = 0.0
-sw |LC3|:float = 0.0
+sw |LoadCell0|:float = 0.0
+sw |LoadCell1|:float = 0.0
+sw |LoadCell2|:float = 0.0
+sw |LoadCell3|:float = 0.0
 sw |System_Max_P|:float = 0.0
 
 #VALVE COMMAND CHANNELS (operator controlled)
@@ -116,10 +116,10 @@ loop read_hardware:
     |PT_FT| = |pt1|
     |PT5| = |pt2|
     |TC1| = |tc0|
-    |LC0| = |lc0|
-    |LC1| = |lc1|
-    |LC2| = |lc2|
-    |LC3| = |lc3|
+    |LoadCell0| = |lc0|
+    |LoadCell1| = |lc1|
+    |LoadCell2| = |lc2|
+    |LoadCell3| = |lc3|
 
 
 #MONITOR — diagnostics and abort
