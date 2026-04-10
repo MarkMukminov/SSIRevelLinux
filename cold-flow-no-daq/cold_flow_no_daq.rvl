@@ -91,6 +91,24 @@ sw |Abort_Active|:bool = False
 sw |EStop_Cmd|:bool = False
 sw |Reset_Abort|:bool = False
 
+#CALIBRATION — operator-triggered baseline logging for filter tuning
+sw |Cal_Cmd|:bool = False              #click to start 10s baseline recording
+sw |Cal_Active|:bool = False
+sw |Cal_Count|:float = 0.0
+const CAL_CYCLES:float = 100.0        #10 seconds at 0.1s/cycle
+#Logged channels (raw readings during calibration)
+sw |Cal_PT_n2_fill|:float = 0.0
+sw |Cal_PT_ox_tank|:float = 0.0
+sw |Cal_PT_ox_fill|:float = 0.0
+sw |Cal_PT_fuel_tank|:float = 0.0
+sw |Cal_PT_chamber|:float = 0.0
+sw |Cal_LC_ox_tank|:float = 0.0
+sw |Cal_LoadCell1|:float = 0.0
+sw |Cal_LoadCell2|:float = 0.0
+sw |Cal_LoadCell3|:float = 0.0
+sw |Cal_TC0|:float = 0.0
+sw |Cal_Done|:bool = False            #indicator: recording complete, ready to export
+
 
 #ALERTS — pressure warnings
 alert warn_pt_n2_fill:
@@ -190,6 +208,31 @@ loop monitor:
     if |Reset_Abort|:
         |Abort_Active| = False
         |Reset_Abort| = False
+
+    #CALIBRATION — record baseline for filter tuning (no filtering applied, raw readings)
+    if |Cal_Cmd|:
+        |Cal_Cmd| = False
+        |Cal_Active| = True
+        |Cal_Count| = 0.0
+        |Cal_Done| = False
+
+    if |Cal_Active|:
+        #Log raw (unfiltered) channel values
+        |Cal_PT_n2_fill| = |PT_n2_fill|
+        |Cal_PT_ox_tank| = |PT_ox_tank|
+        |Cal_PT_ox_fill| = |PT_ox_fill|
+        |Cal_PT_fuel_tank| = |PT_fuel_tank|
+        |Cal_PT_chamber| = |PT_chamber|
+        |Cal_LC_ox_tank| = |LC_ox_tank|
+        |Cal_LoadCell1| = |LoadCell1|
+        |Cal_LoadCell2| = |LoadCell2|
+        |Cal_LoadCell3| = |LoadCell3|
+        |Cal_TC0| = |TC0|
+        |Cal_Count| = |Cal_Count| + 1.0
+
+        if |Cal_Count| >= CAL_CYCLES:
+            |Cal_Active| = False
+            |Cal_Done| = True
 
 
 #WRITE HARDWARE
