@@ -2,11 +2,11 @@
 # HARDWARE:
 # NI cDAQ-9189 chassis at 172.16.23.1
 # Slot 1: NI 9482 — 4ch Relay Output (sv10–sv13)
-# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
+# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1 — MBV PWM)
 # Slot 3: NI 9482 — 4ch Relay Output (sv0–sv3)
-# Slot 4: NI 9219 — 4ch Universal Input, strain gauge (lc0–lc3)
-# Slot 5: NI 9205 — 32ch Analog Input (PT_N2P, PT_O_AFT, PT_OF)
-# Slot 8: NI 9213 — 16ch Thermocouple Input (tc0, Type K, degF)
+# Slot 4: NI 9219 — 4ch Universal Input, strain gauge (LC_ox_tank)
+# Slot 5: NI 9205 — 32ch Analog Input (PT_n2_fill, PT_ox_tank, PT_ox_fill, PT_fuel_tank, PT_chamber)
+# Slot 8: NI 9213 — 16ch Thermocouple Input (TC0, Type K, degF)
 
 #CONSTANTS
 const CYCLE:float = 0.1
@@ -22,15 +22,16 @@ const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
 
 #HARDWARE INPUTS
-hwin |PT_N2P|:float    #NI 9205 slot 5 — N2 pressurization (PSI)
-hwin |PT_O_AFT|:float  #NI 9205 slot 5 — oxidizer aft (PSI)
-hwin |PT_OF|:float     #NI 9205 slot 5 — ox/fuel (PSI)
-hwin |PT_F_AFT|:float  #NI 9205 slot 5 — fuel aft (PSI)
-hwin |TC0|:float       #NI 9213 slot 8 — thermocouple Type K (degF)
-hwin |LoadCell0|:float #NI 9219 slot 4 — load cell ch0
-hwin |LoadCell1|:float #NI 9219 slot 4 — load cell ch1
-hwin |LoadCell2|:float #NI 9219 slot 4 — load cell ch2
-hwin |LoadCell3|:float #NI 9219 slot 4 — load cell ch3
+hwin |PT_n2_fill|:float    #NI 9205 slot 5 pt0 — N2 fill line (PSI)
+hwin |PT_ox_tank|:float    #NI 9205 slot 5 pt1 — oxidizer tank (PSI)
+hwin |PT_ox_fill|:float    #NI 9205 slot 5 pt2 — oxidizer fill line (PSI)
+hwin |PT_fuel_tank|:float  #NI 9205 slot 5 pt3 — fuel tank (PSI)
+hwin |PT_chamber|:float    #NI 9205 slot 5 pt4 — chamber (PSI)
+hwin |TC0|:float           #NI 9213 slot 8 — thermocouple Type K (degF)
+hwin |LC_ox_tank|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LoadCell1|:float     #NI 9219 slot 4 ch1
+hwin |LoadCell2|:float     #NI 9219 slot 4 ch2
+hwin |LoadCell3|:float     #NI 9219 slot 4 ch3
 
 #HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
 hwout |servo0.command|:bool = True
@@ -41,35 +42,37 @@ hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
 hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
 #HARDWARE OUTPUTS — Slot 3 NI 9482 (sv0–sv3)
-hwout |sv0|:bool = False
-hwout |sv1|:bool = False
-hwout |sv2|:bool = False
-hwout |sv3|:bool = False
+hwout |sv0|:bool = False   #SV_N2_fill
+hwout |sv1|:bool = False   #SV_ox_vent
+hwout |sv2|:bool = False   #SV_ox_fill
+hwout |sv3|:bool = False   #SV_fuel_vent
 
 #HARDWARE OUTPUTS — Slot 1 NI 9482 (sv10–sv13)
-hwout |sv10|:bool = False
+hwout |sv10|:bool = False  #ignition ematch
 hwout |sv11|:bool = False
 hwout |sv12|:bool = False
 hwout |sv13|:bool = False
 
 #DIAGNOSTIC CHANNELS
 sw |System_Max_P|:float = 0.0
-sw |PT_N2P_Prev|:float = 0.0
-sw |PT_O_AFT_Prev|:float = 0.0
-sw |PT_OF_Prev|:float = 0.0
-sw |PT_F_AFT_Prev|:float = 0.0
-sw |PT_N2P_Rate|:float = 0.0    #PSI/min (negative = venting)
-sw |PT_O_AFT_Rate|:float = 0.0  #PSI/min (negative = venting)
-sw |PT_OF_Rate|:float = 0.0     #PSI/min (negative = venting)
-sw |PT_F_AFT_Rate|:float = 0.0  #PSI/min (negative = venting)
+sw |PT_n2_fill_Prev|:float = 0.0
+sw |PT_ox_tank_Prev|:float = 0.0
+sw |PT_ox_fill_Prev|:float = 0.0
+sw |PT_fuel_tank_Prev|:float = 0.0
+sw |PT_chamber_Prev|:float = 0.0
+sw |PT_n2_fill_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_ox_tank_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_ox_fill_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_fuel_tank_Rate|:float = 0.0  #PSI/min (negative = venting)
+sw |PT_chamber_Rate|:float = 0.0    #PSI/min
 
 #VALVE COMMAND CHANNELS (operator controlled)
-sw |MBV_O.open|:bool = False
-sw |MBV_F.open|:bool = False
-sw |SV0.open|:bool = False
-sw |SV1.open|:bool = False
-sw |SV2.open|:bool = False
-sw |SV3.open|:bool = False
+sw |MBV_ox_run.open|:bool = False
+sw |MBV_fuel_run.open|:bool = False
+sw |SV_N2_fill.open|:bool = False
+sw |SV_ox_vent.open|:bool = False
+sw |SV_ox_fill.open|:bool = False
+sw |SV_fuel_vent.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
 sw |SV12.open|:bool = False
@@ -86,67 +89,77 @@ sw |Reset_Abort|:bool = False
 
 
 #ALERTS — pressure warnings
-alert warn_pt_n2p:
+alert warn_pt_n2_fill:
     severity = Severity.warning
-    trigger = |PT_N2P| > WARN_P
+    trigger = |PT_n2_fill| > WARN_P
 
-alert warn_pt_o_aft:
+alert warn_pt_ox_tank:
     severity = Severity.warning
-    trigger = |PT_O_AFT| > WARN_P
+    trigger = |PT_ox_tank| > WARN_P
 
-alert warn_pt_of:
+alert warn_pt_ox_fill:
     severity = Severity.warning
-    trigger = |PT_OF| > WARN_P
+    trigger = |PT_ox_fill| > WARN_P
 
-alert warn_pt_f_aft:
+alert warn_pt_fuel_tank:
     severity = Severity.warning
-    trigger = |PT_F_AFT| > WARN_P
+    trigger = |PT_fuel_tank| > WARN_P
+
+alert warn_pt_chamber:
+    severity = Severity.warning
+    trigger = |PT_chamber| > WARN_P
 
 #ALERTS — overpressure (critical)
-alert overpressure_pt_n2p:
+alert overpressure_pt_n2_fill:
     severity = Severity.critical
-    trigger = |PT_N2P| > MAX_SAFE_P
+    trigger = |PT_n2_fill| > MAX_SAFE_P
 
-alert overpressure_pt_o_aft:
+alert overpressure_pt_ox_tank:
     severity = Severity.critical
-    trigger = |PT_O_AFT| > MAX_SAFE_P
+    trigger = |PT_ox_tank| > MAX_SAFE_P
 
-alert overpressure_pt_of:
+alert overpressure_pt_ox_fill:
     severity = Severity.critical
-    trigger = |PT_OF| > MAX_SAFE_P
+    trigger = |PT_ox_fill| > MAX_SAFE_P
 
-alert overpressure_pt_f_aft:
+alert overpressure_pt_fuel_tank:
     severity = Severity.critical
-    trigger = |PT_F_AFT| > MAX_SAFE_P
+    trigger = |PT_fuel_tank| > MAX_SAFE_P
+
+alert overpressure_pt_chamber:
+    severity = Severity.critical
+    trigger = |PT_chamber| > MAX_SAFE_P
 
 
 #MONITOR — diagnostics and abort
 loop monitor:
-    |System_Max_P| = max(max(max(|PT_N2P|, |PT_O_AFT|), |PT_OF|), |PT_F_AFT|)
+    |System_Max_P| = max(max(max(max(|PT_n2_fill|, |PT_ox_tank|), |PT_ox_fill|), |PT_fuel_tank|), |PT_chamber|)
 
     #PRESSURE RATE (PSI/min)
-    |PT_N2P_Rate| = (|PT_N2P| - |PT_N2P_Prev|) / CYCLE * 60.0
-    |PT_O_AFT_Rate| = (|PT_O_AFT| - |PT_O_AFT_Prev|) / CYCLE * 60.0
-    |PT_OF_Rate| = (|PT_OF| - |PT_OF_Prev|) / CYCLE * 60.0
-    |PT_F_AFT_Rate| = (|PT_F_AFT| - |PT_F_AFT_Prev|) / CYCLE * 60.0
-    |PT_N2P_Prev| = |PT_N2P|
-    |PT_O_AFT_Prev| = |PT_O_AFT|
-    |PT_OF_Prev| = |PT_OF|
-    |PT_F_AFT_Prev| = |PT_F_AFT|
+    |PT_n2_fill_Rate| = (|PT_n2_fill| - |PT_n2_fill_Prev|) / CYCLE * 60.0
+    |PT_ox_tank_Rate| = (|PT_ox_tank| - |PT_ox_tank_Prev|) / CYCLE * 60.0
+    |PT_ox_fill_Rate| = (|PT_ox_fill| - |PT_ox_fill_Prev|) / CYCLE * 60.0
+    |PT_fuel_tank_Rate| = (|PT_fuel_tank| - |PT_fuel_tank_Prev|) / CYCLE * 60.0
+    |PT_chamber_Rate| = (|PT_chamber| - |PT_chamber_Prev|) / CYCLE * 60.0
+    |PT_n2_fill_Prev| = |PT_n2_fill|
+    |PT_ox_tank_Prev| = |PT_ox_tank|
+    |PT_ox_fill_Prev| = |PT_ox_fill|
+    |PT_fuel_tank_Prev| = |PT_fuel_tank|
+    |PT_chamber_Prev| = |PT_chamber|
 
     #E-STOP: operator triggers abort
     if |EStop_Cmd|:
         |Abort_Active| = True
         |EStop_Cmd| = False
 
-    #ABORT RESPONSE: open vent paths (MBV, sv1, sv3), close ignition/fill paths
+    #ABORT RESPONSE: open vent paths, close fill/ignition paths
     if |Abort_Active|:
-        |MBV_O.open| = True
-        |MBV_F.open| = True
-        |SV0.open| = False
-        |SV1.open| = True
-        |SV2.open| = False
-        |SV3.open| = True
+        |MBV_ox_run.open| = True
+        |MBV_fuel_run.open| = True
+        |SV_N2_fill.open| = False
+        |SV_ox_vent.open| = True
+        |SV_ox_fill.open| = False
+        |SV_fuel_vent.open| = True
         |SV10.open| = False
         |SV11.open| = False
         |SV12.open| = False
@@ -175,20 +188,20 @@ loop write_hardware:
         |Ignition_Output| = True
 
     #MBV servo control (NI 9401 slot 2)
-    if |MBV_O.open|:
+    if |MBV_ox_run.open|:
         |servo0.duty_cycle| = OPEN_DUTY_CYCLE
     else:
         |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
-    if |MBV_F.open|:
+    if |MBV_fuel_run.open|:
         |servo1.duty_cycle| = OPEN_DUTY_CYCLE
     else:
         |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
 
     #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
-    |sv0| = |SV0.open|
-    |sv1| = |SV1.open|
-    |sv2| = |SV2.open|
-    |sv3| = |SV3.open|
+    |sv0| = |SV_N2_fill.open|
+    |sv1| = |SV_ox_vent.open|
+    |sv2| = |SV_ox_fill.open|
+    |sv3| = |SV_fuel_vent.open|
     |sv10| = |Ignition_Output|
     |sv11| = |SV11.open|
     |sv12| = |SV12.open|

@@ -6,7 +6,7 @@ sample_rate_hz_per_channel: 10000.0
 adc_timing_mode: High Resolution
 channel_settings:
 - is_enabled: true
-  revel_name: LoadCell0
+  revel_name: LC_ox_tank
   address: slot4_Specialty0
   scaling_m: 5.89
   scaling_b: -21.086

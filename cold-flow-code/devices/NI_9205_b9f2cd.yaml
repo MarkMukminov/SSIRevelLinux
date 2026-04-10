@@ -8,35 +8,35 @@ voltage_range_v: +/-5.0V
 terminal_config: Differential
 channel_settings:
 - is_enabled: true
-  revel_name: PT_N2P
+  revel_name: PT_n2_fill
   address: slot5_AnalogInput0
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_O_AFT
+  revel_name: PT_ox_tank
   address: slot5_AnalogInput1
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_OF
+  revel_name: PT_ox_fill
   address: slot5_AnalogInput2
   scaling_m: 355.56
   scaling_b: -177.76
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_F_AFT
+  revel_name: PT_fuel_tank
   address: slot5_AnalogInput3
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
-- is_enabled: false
-  revel_name: pt4
+- is_enabled: true
+  revel_name: PT_chamber
   address: slot5_AnalogInput4
   scaling_m: 355.56
   scaling_b: -177.78
