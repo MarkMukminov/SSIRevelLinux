@@ -20,6 +20,7 @@ const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
 const PULSE_OPEN_FRACTION:float = 0.6   #60% of full travel = open position
 const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
+const RATE_ALPHA:float = 0.1    #EMA smoothing for rate traces (0=frozen, 1=raw, tune as needed)
 
 #HARDWARE INPUTS
 hwin |PT_n2_fill|:float    #NI 9205 slot 5 pt0 — N2 fill line (PSI)
@@ -135,12 +136,12 @@ alert overpressure_pt_chamber:
 loop monitor:
     |System_Max_P| = max(max(max(max(|PT_n2_fill|, |PT_ox_tank|), |PT_ox_fill|), |PT_fuel_tank|), |PT_chamber|)
 
-    #PRESSURE RATE (PSI/min)
-    |PT_n2_fill_Rate| = (|PT_n2_fill| - |PT_n2_fill_Prev|) / CYCLE * 60.0
-    |PT_ox_tank_Rate| = (|PT_ox_tank| - |PT_ox_tank_Prev|) / CYCLE * 60.0
-    |PT_ox_fill_Rate| = (|PT_ox_fill| - |PT_ox_fill_Prev|) / CYCLE * 60.0
-    |PT_fuel_tank_Rate| = (|PT_fuel_tank| - |PT_fuel_tank_Prev|) / CYCLE * 60.0
-    |PT_chamber_Rate| = (|PT_chamber| - |PT_chamber_Prev|) / CYCLE * 60.0
+    #PRESSURE RATE (PSI/min) — EMA smoothed to reduce cycle noise
+    |PT_n2_fill_Rate| = RATE_ALPHA * ((|PT_n2_fill| - |PT_n2_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_n2_fill_Rate|
+    |PT_ox_tank_Rate| = RATE_ALPHA * ((|PT_ox_tank| - |PT_ox_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_tank_Rate|
+    |PT_ox_fill_Rate| = RATE_ALPHA * ((|PT_ox_fill| - |PT_ox_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_fill_Rate|
+    |PT_fuel_tank_Rate| = RATE_ALPHA * ((|PT_fuel_tank| - |PT_fuel_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_fuel_tank_Rate|
+    |PT_chamber_Rate| = RATE_ALPHA * ((|PT_chamber| - |PT_chamber_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_chamber_Rate|
     |PT_n2_fill_Prev| = |PT_n2_fill|
     |PT_ox_tank_Prev| = |PT_ox_tank|
     |PT_ox_fill_Prev| = |PT_ox_fill|
