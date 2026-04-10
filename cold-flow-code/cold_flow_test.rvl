@@ -17,7 +17,7 @@ const WARN_P:float = 1150.0
 const PULSE_PERIOD_MS:float = 5.0
 const PULSE_WIDTH_MIN_MS:float = 0.5    #0 deg = fully closed
 const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
-const PULSE_OPEN_FRACTION:float = 0.74  #74% of full travel = open position
+const PULSE_OPEN_FRACTION:float = 0.6 #74% of full travel = open position
 const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
 
@@ -67,6 +67,7 @@ sw |MBV_O.open|:bool = False
 sw |MBV_F.open|:bool = False
 sw |SV0.open|:bool = False
 sw |SV1.open|:bool = False
+sw |SV2.open|:bool = False
 sw |SV3.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
@@ -133,19 +134,20 @@ loop monitor:
 
     #ABORT RESPONSE: close all valves and force hardware off
     if |Abort_Active|:
-        |MBV_O.open| = False
-        |MBV_F.open| = False
+        |MBV_O.open| = True
+        |MBV_F.open| = True
         |SV0.open| = False
-        |SV1.open| = False
-        |SV3.open| = False
+        |SV1.open| = True
+        |SV2.open| = False
+        |SV3.open| = True
         |SV10.open| = False
         |SV11.open| = False
         |SV12.open| = False
         |SV13.open| = False
         |sv0| = False
-        |sv1| = False
+        |sv1| = True
         |sv2| = False
-        |sv3| = False
+        |sv3| = True
         |sv10| = False
         |sv11| = False
         |sv12| = False
@@ -178,9 +180,9 @@ loop write_hardware:
     #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
     |sv0| = |SV0.open|
     |sv1| = |SV1.open|
-    |sv2| = |Ignition_Output|
+    |sv2| = |SV2.open|
     |sv3| = |SV3.open|
-    |sv10| = |SV10.open|
+    |sv10| = |Ignition_Output|
     |sv11| = |SV11.open|
     |sv12| = |SV12.open|
     |sv13| = |SV13.open|
