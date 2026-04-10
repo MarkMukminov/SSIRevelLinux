@@ -49,13 +49,19 @@ sw |sv13|:bool = False
 #SENSOR READOUT CHANNELS
 sw |PT_OT|:float = 0.0
 sw |PT_FT|:float = 0.0
-sw |PT5|:float = 0.0
-sw |TC1|:float = 70.0
+sw |PT2|:float = 0.0
+sw |TC0|:float = 70.0
 sw |LoadCell0|:float = 0.0
 sw |LoadCell1|:float = 0.0
 sw |LoadCell2|:float = 0.0
 sw |LoadCell3|:float = 0.0
 sw |System_Max_P|:float = 0.0
+sw |PT_OT_Prev|:float = 0.0
+sw |PT_FT_Prev|:float = 0.0
+sw |PT2_Prev|:float = 0.0
+sw |PT_OT_Rate|:float = 0.0   #PSI/min (negative = venting)
+sw |PT_FT_Rate|:float = 0.0   #PSI/min (negative = venting)
+sw |PT2_Rate|:float = 0.0     #PSI/min (negative = venting)
 
 #VALVE COMMAND CHANNELS (operator controlled)
 sw |MBV_O.open|:bool = False
@@ -87,9 +93,9 @@ alert warn_pt_ft:
     severity = Severity.warning
     trigger = |PT_FT| > WARN_P
 
-alert warn_pt5:
+alert warn_pt2:
     severity = Severity.warning
-    trigger = |PT5| > WARN_P
+    trigger = |PT2| > WARN_P
 
 #ALERTS — overpressure (critical)
 alert overpressure_pt_ot:
@@ -100,17 +106,17 @@ alert overpressure_pt_ft:
     severity = Severity.critical
     trigger = |PT_FT| > MAX_SAFE_P
 
-alert overpressure_pt5:
+alert overpressure_pt2:
     severity = Severity.critical
-    trigger = |PT5| > MAX_SAFE_P
+    trigger = |PT2| > MAX_SAFE_P
 
 
 #READ HARDWARE
 loop read_hardware:
     |PT_OT| = |pt0|
     |PT_FT| = |pt1|
-    |PT5| = |pt2|
-    |TC1| = |tc0|
+    |PT2| = |pt2|
+    |TC0| = |tc0|
     |LoadCell0| = |lc0|
     |LoadCell1| = |lc1|
     |LoadCell2| = |lc2|
@@ -119,7 +125,15 @@ loop read_hardware:
 
 #MONITOR — diagnostics and abort
 loop monitor:
-    |System_Max_P| = max(max(|PT_OT|, |PT_FT|), |PT5|)
+    |System_Max_P| = max(max(|PT_OT|, |PT_FT|), |PT2|)
+
+    #PRESSURE RATE (PSI/min)
+    |PT_OT_Rate| = (|PT_OT| - |PT_OT_Prev|) / CYCLE * 60.0
+    |PT_FT_Rate| = (|PT_FT| - |PT_FT_Prev|) / CYCLE * 60.0
+    |PT2_Rate| = (|PT2| - |PT2_Prev|) / CYCLE * 60.0
+    |PT_OT_Prev| = |PT_OT|
+    |PT_FT_Prev| = |PT_FT|
+    |PT2_Prev| = |PT2|
 
     #E-STOP: operator triggers abort
     if |EStop_Cmd|:
