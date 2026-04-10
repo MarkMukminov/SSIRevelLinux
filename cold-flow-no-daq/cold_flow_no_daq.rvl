@@ -137,12 +137,14 @@ alert overpressure_pt_chamber:
 
 #MONITOR — diagnostics and abort
 loop monitor:
-    #SMOOTH RAW PRESSURE (adaptive deadband — noise <1PSI suppressed, real changes pass instantly)
-    |PT_n2_fill_S| = |PT_n2_fill_S| + min(1.0, abs(|PT_n2_fill| - |PT_n2_fill_S|) / DEADBAND) * (|PT_n2_fill| - |PT_n2_fill_S|)
-    |PT_ox_tank_S| = |PT_ox_tank_S| + min(1.0, abs(|PT_ox_tank| - |PT_ox_tank_S|) / DEADBAND) * (|PT_ox_tank| - |PT_ox_tank_S|)
-    |PT_ox_fill_S| = |PT_ox_fill_S| + min(1.0, abs(|PT_ox_fill| - |PT_ox_fill_S|) / DEADBAND) * (|PT_ox_fill| - |PT_ox_fill_S|)
-    |PT_fuel_tank_S| = |PT_fuel_tank_S| + min(1.0, abs(|PT_fuel_tank| - |PT_fuel_tank_S|) / DEADBAND) * (|PT_fuel_tank| - |PT_fuel_tank_S|)
-    |PT_chamber_S| = |PT_chamber_S| + min(1.0, abs(|PT_chamber| - |PT_chamber_S|) / DEADBAND) * (|PT_chamber| - |PT_chamber_S|)
+    #SMOOTH RAW PRESSURE — soft adaptive filter: alpha = d²/(d²+DEADBAND²), update = d³/(d²+DEADBAND²)
+    #Small changes (<1PSI) heavily suppressed, large changes pass through smoothly with no hard cutoff
+    #EMA (RATE_ALPHA) on rates below provides a second layer for residual noise at higher pressures
+    |PT_n2_fill_S| = |PT_n2_fill_S| + (|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) / ((|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) + DEADBAND * DEADBAND)
+    |PT_ox_tank_S| = |PT_ox_tank_S| + (|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) / ((|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) + DEADBAND * DEADBAND)
+    |PT_ox_fill_S| = |PT_ox_fill_S| + (|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) / ((|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) + DEADBAND * DEADBAND)
+    |PT_fuel_tank_S| = |PT_fuel_tank_S| + (|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) / ((|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) + DEADBAND * DEADBAND)
+    |PT_chamber_S| = |PT_chamber_S| + (|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) / ((|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) + DEADBAND * DEADBAND)
 
     |System_Max_P| = max(max(max(max(|PT_n2_fill|, |PT_ox_tank|), |PT_ox_fill|), |PT_fuel_tank|), |PT_chamber|)
 
