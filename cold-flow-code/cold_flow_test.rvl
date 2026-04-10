@@ -21,6 +21,7 @@ const PULSE_OPEN_FRACTION:float = 0.6   #60% of full travel = open position
 const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
 const RATE_ALPHA:float = 0.1    #EMA smoothing for rate traces (0=frozen, 1=raw, tune as needed)
+const DEADBAND:float = 1.0      #PSI — changes smaller than this get suppressed, larger pass through instantly
 
 #HARDWARE INPUTS
 hwin |PT_n2_fill|:float    #NI 9205 slot 5 pt0 — N2 fill line (PSI)
@@ -53,6 +54,13 @@ hwout |sv10|:bool = False  #ignition ematch
 hwout |sv11|:bool = False
 hwout |sv12|:bool = False
 hwout |sv13|:bool = False
+
+#SMOOTHED PRESSURE (for display — use these on gauges/traces, NOT the raw hwin channels)
+sw |PT_n2_fill_S|:float = 0.0
+sw |PT_ox_tank_S|:float = 0.0
+sw |PT_ox_fill_S|:float = 0.0
+sw |PT_fuel_tank_S|:float = 0.0
+sw |PT_chamber_S|:float = 0.0
 
 #DIAGNOSTIC CHANNELS
 sw |System_Max_P|:float = 0.0
@@ -134,19 +142,26 @@ alert overpressure_pt_chamber:
 
 #MONITOR — diagnostics and abort
 loop monitor:
+    #SMOOTH RAW PRESSURE (adaptive deadband — noise <1PSI suppressed, real changes pass instantly)
+    |PT_n2_fill_S| = |PT_n2_fill_S| + min(1.0, abs(|PT_n2_fill| - |PT_n2_fill_S|) / DEADBAND) * (|PT_n2_fill| - |PT_n2_fill_S|)
+    |PT_ox_tank_S| = |PT_ox_tank_S| + min(1.0, abs(|PT_ox_tank| - |PT_ox_tank_S|) / DEADBAND) * (|PT_ox_tank| - |PT_ox_tank_S|)
+    |PT_ox_fill_S| = |PT_ox_fill_S| + min(1.0, abs(|PT_ox_fill| - |PT_ox_fill_S|) / DEADBAND) * (|PT_ox_fill| - |PT_ox_fill_S|)
+    |PT_fuel_tank_S| = |PT_fuel_tank_S| + min(1.0, abs(|PT_fuel_tank| - |PT_fuel_tank_S|) / DEADBAND) * (|PT_fuel_tank| - |PT_fuel_tank_S|)
+    |PT_chamber_S| = |PT_chamber_S| + min(1.0, abs(|PT_chamber| - |PT_chamber_S|) / DEADBAND) * (|PT_chamber| - |PT_chamber_S|)
+
     |System_Max_P| = max(max(max(max(|PT_n2_fill|, |PT_ox_tank|), |PT_ox_fill|), |PT_fuel_tank|), |PT_chamber|)
 
-    #PRESSURE RATE (PSI/min) — EMA smoothed to reduce cycle noise
-    |PT_n2_fill_Rate| = RATE_ALPHA * ((|PT_n2_fill| - |PT_n2_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_n2_fill_Rate|
-    |PT_ox_tank_Rate| = RATE_ALPHA * ((|PT_ox_tank| - |PT_ox_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_tank_Rate|
-    |PT_ox_fill_Rate| = RATE_ALPHA * ((|PT_ox_fill| - |PT_ox_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_fill_Rate|
-    |PT_fuel_tank_Rate| = RATE_ALPHA * ((|PT_fuel_tank| - |PT_fuel_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_fuel_tank_Rate|
-    |PT_chamber_Rate| = RATE_ALPHA * ((|PT_chamber| - |PT_chamber_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_chamber_Rate|
-    |PT_n2_fill_Prev| = |PT_n2_fill|
-    |PT_ox_tank_Prev| = |PT_ox_tank|
-    |PT_ox_fill_Prev| = |PT_ox_fill|
-    |PT_fuel_tank_Prev| = |PT_fuel_tank|
-    |PT_chamber_Prev| = |PT_chamber|
+    #PRESSURE RATE (PSI/min) — derived from smoothed signal, EMA'd again for trace display
+    |PT_n2_fill_Rate| = RATE_ALPHA * ((|PT_n2_fill_S| - |PT_n2_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_n2_fill_Rate|
+    |PT_ox_tank_Rate| = RATE_ALPHA * ((|PT_ox_tank_S| - |PT_ox_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_tank_Rate|
+    |PT_ox_fill_Rate| = RATE_ALPHA * ((|PT_ox_fill_S| - |PT_ox_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_fill_Rate|
+    |PT_fuel_tank_Rate| = RATE_ALPHA * ((|PT_fuel_tank_S| - |PT_fuel_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_fuel_tank_Rate|
+    |PT_chamber_Rate| = RATE_ALPHA * ((|PT_chamber_S| - |PT_chamber_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_chamber_Rate|
+    |PT_n2_fill_Prev| = |PT_n2_fill_S|
+    |PT_ox_tank_Prev| = |PT_ox_tank_S|
+    |PT_ox_fill_Prev| = |PT_ox_fill_S|
+    |PT_fuel_tank_Prev| = |PT_fuel_tank_S|
+    |PT_chamber_Prev| = |PT_chamber_S|
 
     #E-STOP: operator triggers abort
     if |EStop_Cmd|:
