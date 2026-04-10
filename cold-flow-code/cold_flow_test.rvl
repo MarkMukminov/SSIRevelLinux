@@ -5,8 +5,8 @@
 # Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
 # Slot 3: NI 9482 — 4ch Relay Output (sv0–sv3)
 # Slot 4: NI 9219 — 4ch Universal Input, strain gauge (lc0–lc3)
-# Slot 5: NI 9205 — 32ch Analog Input (pt0–pt31)
-# Slot 8: NI 9213 — 16ch Thermocouple Input (tc0–tc15, Type K, degF)
+# Slot 5: NI 9205 — 32ch Analog Input (PT_N2P, PT_O_AFT, PT_OF)
+# Slot 8: NI 9213 — 16ch Thermocouple Input (tc0, Type K, degF)
 
 #CONSTANTS
 const CYCLE:float = 0.1
@@ -17,19 +17,19 @@ const WARN_P:float = 1150.0
 const PULSE_PERIOD_MS:float = 5.0
 const PULSE_WIDTH_MIN_MS:float = 0.5    #0 deg = fully closed
 const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
-const PULSE_OPEN_FRACTION:float = 0.74  #74% of full travel = open position
+const PULSE_OPEN_FRACTION:float = 0.6   #60% of full travel = open position
 const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
 
 #HARDWARE INPUTS
-hwin |pt0|:float   #NI 9205 slot 5 — oxidizer tank pressure (PSI)
-hwin |pt1|:float   #NI 9205 slot 5 — fuel tank pressure (PSI)
-hwin |pt2|:float   #NI 9205 slot 5 — secondary pressure (PSI)
-hwin |tc0|:float   #NI 9213 slot 8 — thermocouple Type K (degF)
-hwin |lc0|:float   #NI 9219 slot 4 — load cell ch0
-hwin |lc1|:float   #NI 9219 slot 4 — load cell ch1
-hwin |lc2|:float   #NI 9219 slot 4 — load cell ch2
-hwin |lc3|:float   #NI 9219 slot 4 — load cell ch3
+hwin |PT_N2P|:float    #NI 9205 slot 5 — N2 pressurization (PSI)
+hwin |PT_O_AFT|:float  #NI 9205 slot 5 — oxidizer aft (PSI)
+hwin |PT_OF|:float     #NI 9205 slot 5 — ox/fuel (PSI)
+hwin |tc0|:float       #NI 9213 slot 8 — thermocouple Type K (degF)
+hwin |lc0|:float       #NI 9219 slot 4 — load cell ch0
+hwin |lc1|:float       #NI 9219 slot 4 — load cell ch1
+hwin |lc2|:float       #NI 9219 slot 4 — load cell ch2
+hwin |lc3|:float       #NI 9219 slot 4 — load cell ch3
 
 #HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
 hwout |servo0.command|:bool = True
@@ -52,34 +52,32 @@ hwout |sv12|:bool = False
 hwout |sv13|:bool = False
 
 #SENSOR READOUT CHANNELS
-sw |PT_OT|:float = 0.0
-sw |PT_FT|:float = 0.0
-sw |PT2|:float = 0.0
 sw |TC0|:float = 70.0
 sw |LoadCell0|:float = 0.0
 sw |LoadCell1|:float = 0.0
 sw |LoadCell2|:float = 0.0
 sw |LoadCell3|:float = 0.0
 sw |System_Max_P|:float = 0.0
-sw |PT_OT_Prev|:float = 0.0
-sw |PT_FT_Prev|:float = 0.0
-sw |PT2_Prev|:float = 0.0
-sw |PT_OT_Rate|:float = 0.0   #PSI/min (negative = venting)
-sw |PT_FT_Rate|:float = 0.0   #PSI/min (negative = venting)
-sw |PT2_Rate|:float = 0.0     #PSI/min (negative = venting)
+sw |PT_N2P_Prev|:float = 0.0
+sw |PT_O_AFT_Prev|:float = 0.0
+sw |PT_OF_Prev|:float = 0.0
+sw |PT_N2P_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_O_AFT_Rate|:float = 0.0  #PSI/min (negative = venting)
+sw |PT_OF_Rate|:float = 0.0     #PSI/min (negative = venting)
 
 #VALVE COMMAND CHANNELS (operator controlled)
 sw |MBV_O.open|:bool = False
 sw |MBV_F.open|:bool = False
 sw |SV0.open|:bool = False
 sw |SV1.open|:bool = False
+sw |SV2.open|:bool = False
 sw |SV3.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
 sw |SV12.open|:bool = False
 sw |SV13.open|:bool = False
 
-#IGNITION (one-cycle pulse)
+#IGNITION (one-cycle pulse on sv10)
 sw |Ignition_Fire_Cmd|:bool = False
 sw |Ignition_Output|:bool = False
 
@@ -90,37 +88,34 @@ sw |Reset_Abort|:bool = False
 
 
 #ALERTS — pressure warnings
-alert warn_pt_ot:
+alert warn_pt_n2p:
     severity = Severity.warning
-    trigger = |PT_OT| > WARN_P
+    trigger = |PT_N2P| > WARN_P
 
-alert warn_pt_ft:
+alert warn_pt_o_aft:
     severity = Severity.warning
-    trigger = |PT_FT| > WARN_P
+    trigger = |PT_O_AFT| > WARN_P
 
-alert warn_pt2:
+alert warn_pt_of:
     severity = Severity.warning
-    trigger = |PT2| > WARN_P
+    trigger = |PT_OF| > WARN_P
 
 #ALERTS — overpressure (critical)
-alert overpressure_pt_ot:
+alert overpressure_pt_n2p:
     severity = Severity.critical
-    trigger = |PT_OT| > MAX_SAFE_P
+    trigger = |PT_N2P| > MAX_SAFE_P
 
-alert overpressure_pt_ft:
+alert overpressure_pt_o_aft:
     severity = Severity.critical
-    trigger = |PT_FT| > MAX_SAFE_P
+    trigger = |PT_O_AFT| > MAX_SAFE_P
 
-alert overpressure_pt2:
+alert overpressure_pt_of:
     severity = Severity.critical
-    trigger = |PT2| > MAX_SAFE_P
+    trigger = |PT_OF| > MAX_SAFE_P
 
 
 #READ HARDWARE
 loop read_hardware:
-    |PT_OT| = |pt0|
-    |PT_FT| = |pt1|
-    |PT2| = |pt2|
     |TC0| = |tc0|
     |LoadCell0| = |lc0|
     |LoadCell1| = |lc1|
@@ -130,36 +125,37 @@ loop read_hardware:
 
 #MONITOR — diagnostics and abort
 loop monitor:
-    |System_Max_P| = max(max(|PT_OT|, |PT_FT|), |PT2|)
+    |System_Max_P| = max(max(|PT_N2P|, |PT_O_AFT|), |PT_OF|)
 
     #PRESSURE RATE (PSI/min)
-    |PT_OT_Rate| = (|PT_OT| - |PT_OT_Prev|) / CYCLE * 60.0
-    |PT_FT_Rate| = (|PT_FT| - |PT_FT_Prev|) / CYCLE * 60.0
-    |PT2_Rate| = (|PT2| - |PT2_Prev|) / CYCLE * 60.0
-    |PT_OT_Prev| = |PT_OT|
-    |PT_FT_Prev| = |PT_FT|
-    |PT2_Prev| = |PT2|
+    |PT_N2P_Rate| = (|PT_N2P| - |PT_N2P_Prev|) / CYCLE * 60.0
+    |PT_O_AFT_Rate| = (|PT_O_AFT| - |PT_O_AFT_Prev|) / CYCLE * 60.0
+    |PT_OF_Rate| = (|PT_OF| - |PT_OF_Prev|) / CYCLE * 60.0
+    |PT_N2P_Prev| = |PT_N2P|
+    |PT_O_AFT_Prev| = |PT_O_AFT|
+    |PT_OF_Prev| = |PT_OF|
 
     #E-STOP: operator triggers abort
     if |EStop_Cmd|:
         |Abort_Active| = True
         |EStop_Cmd| = False
 
-    #ABORT RESPONSE: close all valves and force hardware off
+    #ABORT RESPONSE: open vent paths (MBV, sv1, sv3), close ignition/fill paths
     if |Abort_Active|:
-        |MBV_O.open| = False
-        |MBV_F.open| = False
+        |MBV_O.open| = True
+        |MBV_F.open| = True
         |SV0.open| = False
-        |SV1.open| = False
-        |SV3.open| = False
+        |SV1.open| = True
+        |SV2.open| = False
+        |SV3.open| = True
         |SV10.open| = False
         |SV11.open| = False
         |SV12.open| = False
         |SV13.open| = False
         |sv0| = False
-        |sv1| = False
+        |sv1| = True
         |sv2| = False
-        |sv3| = False
+        |sv3| = True
         |sv10| = False
         |sv11| = False
         |sv12| = False
@@ -173,7 +169,7 @@ loop monitor:
 
 #WRITE HARDWARE
 loop write_hardware:
-    #Ignition pulse — clear every cycle, fire on command
+    #Ignition pulse — clear every cycle, fire on command (sv10)
     |Ignition_Output| = False
     if |Ignition_Fire_Cmd|:
         |Ignition_Fire_Cmd| = False
@@ -192,9 +188,9 @@ loop write_hardware:
     #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
     |sv0| = |SV0.open|
     |sv1| = |SV1.open|
-    |sv2| = |Ignition_Output|
+    |sv2| = |SV2.open|
     |sv3| = |SV3.open|
-    |sv10| = |SV10.open|
+    |sv10| = |Ignition_Output|
     |sv11| = |SV11.open|
     |sv12| = |SV12.open|
     |sv13| = |SV13.open|

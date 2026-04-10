@@ -8,9 +8,9 @@ channel_settings:
 - is_enabled: true
   revel_name: lc0
   address: slot4_Specialty0
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 5.89
+  scaling_b: -21.086
+  display_unit: lbs
   description: ''
   measurement_mode: voltage
   excitation_voltage: 2.5
