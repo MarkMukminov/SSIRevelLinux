@@ -28,7 +28,7 @@ channel_settings:
   scaling_b: -177.76
   display_unit: Psi
   description: ''
-- is_enabled: false
+- is_enabled: true
   revel_name: PT_F_AFT
   address: slot5_AnalogInput3
   scaling_m: 355.56

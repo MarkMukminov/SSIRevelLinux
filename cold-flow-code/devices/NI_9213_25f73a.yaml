@@ -8,7 +8,7 @@ adc_timing_mode: High Resolution
 sample_rate_hz: 4.6875
 channel_settings:
 - is_enabled: true
-  revel_name: tc0
+  revel_name: TC0
   address: slot8_Specialty0
   scaling_m: 1.0
   scaling_b: 0.0

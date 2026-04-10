@@ -25,11 +25,12 @@ var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDT
 hwin |PT_N2P|:float    #NI 9205 slot 5 — N2 pressurization (PSI)
 hwin |PT_O_AFT|:float  #NI 9205 slot 5 — oxidizer aft (PSI)
 hwin |PT_OF|:float     #NI 9205 slot 5 — ox/fuel (PSI)
-hwin |tc0|:float       #NI 9213 slot 8 — thermocouple Type K (degF)
-hwin |lc0|:float       #NI 9219 slot 4 — load cell ch0
-hwin |lc1|:float       #NI 9219 slot 4 — load cell ch1
-hwin |lc2|:float       #NI 9219 slot 4 — load cell ch2
-hwin |lc3|:float       #NI 9219 slot 4 — load cell ch3
+hwin |PT_F_AFT|:float  #NI 9205 slot 5 — fuel aft (PSI)
+hwin |TC0|:float       #NI 9213 slot 8 — thermocouple Type K (degF)
+hwin |LoadCell0|:float #NI 9219 slot 4 — load cell ch0
+hwin |LoadCell1|:float #NI 9219 slot 4 — load cell ch1
+hwin |LoadCell2|:float #NI 9219 slot 4 — load cell ch2
+hwin |LoadCell3|:float #NI 9219 slot 4 — load cell ch3
 
 #HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
 hwout |servo0.command|:bool = True
@@ -51,19 +52,16 @@ hwout |sv11|:bool = False
 hwout |sv12|:bool = False
 hwout |sv13|:bool = False
 
-#SENSOR READOUT CHANNELS
-sw |TC0|:float = 70.0
-sw |LoadCell0|:float = 0.0
-sw |LoadCell1|:float = 0.0
-sw |LoadCell2|:float = 0.0
-sw |LoadCell3|:float = 0.0
+#DIAGNOSTIC CHANNELS
 sw |System_Max_P|:float = 0.0
 sw |PT_N2P_Prev|:float = 0.0
 sw |PT_O_AFT_Prev|:float = 0.0
 sw |PT_OF_Prev|:float = 0.0
+sw |PT_F_AFT_Prev|:float = 0.0
 sw |PT_N2P_Rate|:float = 0.0    #PSI/min (negative = venting)
 sw |PT_O_AFT_Rate|:float = 0.0  #PSI/min (negative = venting)
 sw |PT_OF_Rate|:float = 0.0     #PSI/min (negative = venting)
+sw |PT_F_AFT_Rate|:float = 0.0  #PSI/min (negative = venting)
 
 #VALVE COMMAND CHANNELS (operator controlled)
 sw |MBV_O.open|:bool = False
@@ -100,6 +98,10 @@ alert warn_pt_of:
     severity = Severity.warning
     trigger = |PT_OF| > WARN_P
 
+alert warn_pt_f_aft:
+    severity = Severity.warning
+    trigger = |PT_F_AFT| > WARN_P
+
 #ALERTS — overpressure (critical)
 alert overpressure_pt_n2p:
     severity = Severity.critical
@@ -113,27 +115,24 @@ alert overpressure_pt_of:
     severity = Severity.critical
     trigger = |PT_OF| > MAX_SAFE_P
 
-
-#READ HARDWARE
-loop read_hardware:
-    |TC0| = |tc0|
-    |LoadCell0| = |lc0|
-    |LoadCell1| = |lc1|
-    |LoadCell2| = |lc2|
-    |LoadCell3| = |lc3|
+alert overpressure_pt_f_aft:
+    severity = Severity.critical
+    trigger = |PT_F_AFT| > MAX_SAFE_P
 
 
 #MONITOR — diagnostics and abort
 loop monitor:
-    |System_Max_P| = max(max(|PT_N2P|, |PT_O_AFT|), |PT_OF|)
+    |System_Max_P| = max(max(max(|PT_N2P|, |PT_O_AFT|), |PT_OF|), |PT_F_AFT|)
 
     #PRESSURE RATE (PSI/min)
     |PT_N2P_Rate| = (|PT_N2P| - |PT_N2P_Prev|) / CYCLE * 60.0
     |PT_O_AFT_Rate| = (|PT_O_AFT| - |PT_O_AFT_Prev|) / CYCLE * 60.0
     |PT_OF_Rate| = (|PT_OF| - |PT_OF_Prev|) / CYCLE * 60.0
+    |PT_F_AFT_Rate| = (|PT_F_AFT| - |PT_F_AFT_Prev|) / CYCLE * 60.0
     |PT_N2P_Prev| = |PT_N2P|
     |PT_O_AFT_Prev| = |PT_O_AFT|
     |PT_OF_Prev| = |PT_OF|
+    |PT_F_AFT_Prev| = |PT_F_AFT|
 
     #E-STOP: operator triggers abort
     if |EStop_Cmd|:
