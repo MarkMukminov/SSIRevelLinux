@@ -8,60 +8,60 @@ voltage_range_v: +/-5.0V
 terminal_config: Differential
 channel_settings:
 - is_enabled: true
-  revel_name: PT_n2_fill
+  revel_name: Empty_PT_0
   address: slot5_AnalogInput0
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_ox_tank
+  revel_name: Empty_PT_1
   address: slot5_AnalogInput1
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_ox_fill
+  revel_name: PT_ox_tank
   address: slot5_AnalogInput2
   scaling_m: 355.56
   scaling_b: -177.76
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_fuel_tank
+  revel_name: PT_chamber
   address: slot5_AnalogInput3
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
 - is_enabled: true
-  revel_name: PT_chamber
+  revel_name: PT_fuel_tank
   address: slot5_AnalogInput4
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
-- is_enabled: false
-  revel_name: pt5
+- is_enabled: true
+  revel_name: PT_n2_fill
   address: slot5_AnalogInput5
   scaling_m: 355.56
   scaling_b: -177.78
   display_unit: Psi
   description: ''
-- is_enabled: false
-  revel_name: pt6
+- is_enabled: true
+  revel_name: PT_ox_fill
   address: slot5_AnalogInput6
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 355.56
+  scaling_b: -177.78
+  display_unit: Psi
   description: ''
-- is_enabled: false
-  revel_name: pt7
+- is_enabled: true
+  revel_name: Empty_PT_7
   address: slot5_AnalogInput7
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 355.56
+  scaling_b: -177.76
+  display_unit: Psi
   description: ''
 - is_enabled: false
   revel_name: pt8
@@ -119,56 +119,56 @@ channel_settings:
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt16
   address: slot5_AnalogInput16
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt17
   address: slot5_AnalogInput17
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt18
   address: slot5_AnalogInput18
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt19
   address: slot5_AnalogInput19
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt20
   address: slot5_AnalogInput20
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt21
   address: slot5_AnalogInput21
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt22
   address: slot5_AnalogInput22
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt23
   address: slot5_AnalogInput23
   scaling_m: 1.0

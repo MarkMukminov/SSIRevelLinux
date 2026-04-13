@@ -31,9 +31,9 @@ hwin |PT_fuel_tank|:float  #NI 9205 slot 5 pt3 — fuel tank (PSI)
 hwin |PT_chamber|:float    #NI 9205 slot 5 pt4 — chamber (PSI)
 hwin |TC0|:float           #NI 9213 slot 8 — thermocouple Type K (degF)
 hwin |LC_ox_tank|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
-hwin |LoadCell1|:float     #NI 9219 slot 4 ch1
-hwin |LoadCell2|:float     #NI 9219 slot 4 ch2
-hwin |LoadCell3|:float     #NI 9219 slot 4 ch3
+hwin |LC_chamber_1|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LC_chamber_2|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LC_chamber_3|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
 
 #HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
 hwout |servo0.command|:bool = True
@@ -78,10 +78,10 @@ sw |PT_chamber_Rate|:float = 0.0    #PSI/min
 #VALVE COMMAND CHANNELS (operator controlled)
 sw |MBV_ox_run.open|:bool = False
 sw |MBV_fuel_run.open|:bool = False
-sw |SV_N2_fill.open|:bool = False
-sw |SV_ox_vent.open|:bool = False
-sw |SV_ox_fill.open|:bool = False
-sw |SV_fuel_vent.open|:bool = False
+sw |SV_Ox_Vent.open|:bool = False
+sw |SV_Fuel_Vent.open|:bool = False
+sw |SV_N2_Fill.open|:bool = False
+sw |SV_Ox_Fill.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
 sw |SV12.open|:bool = False
@@ -108,9 +108,9 @@ sw |Cal_PT_ox_fill|:float = 0.0
 sw |Cal_PT_fuel_tank|:float = 0.0
 sw |Cal_PT_chamber|:float = 0.0
 sw |Cal_LC_ox_tank|:float = 0.0
-sw |Cal_LoadCell1|:float = 0.0
-sw |Cal_LoadCell2|:float = 0.0
-sw |Cal_LoadCell3|:float = 0.0
+#sw |Cal_LoadCell1|:float = 0.0
+#sw |Cal_LoadCell2|:float = 0.0
+#sw |Cal_LoadCell3|:float = 0.0
 sw |Cal_TC0|:float = 0.0
 sw |Cal_Done|:bool = False            #indicator: recording complete, ready to export
 
@@ -192,10 +192,10 @@ loop monitor:
     if |Abort_Active|:
         |MBV_ox_run.open| = True
         |MBV_fuel_run.open| = True
-        |SV_N2_fill.open| = False
-        |SV_ox_vent.open| = True
-        |SV_ox_fill.open| = False
-        |SV_fuel_vent.open| = True
+        |SV_Ox_Vent.open| = False
+        |SV_Fuel_Vent.open| = True
+        |SV_N2_Fill.open| = False
+        |SV_Ox_Fill.open| = True
         |SV10.open| = False
         |SV11.open| = False
         |SV12.open| = False
@@ -229,9 +229,9 @@ loop monitor:
         |Cal_PT_fuel_tank| = |PT_fuel_tank|
         |Cal_PT_chamber| = |PT_chamber|
         |Cal_LC_ox_tank| = |LC_ox_tank|
-        |Cal_LoadCell1| = |LoadCell1|
-        |Cal_LoadCell2| = |LoadCell2|
-        |Cal_LoadCell3| = |LoadCell3|
+        #|Cal_LoadCell1| = |LoadCell1|
+        #|Cal_LoadCell2| = |LoadCell2|
+        #|Cal_LoadCell3| = |LoadCell3|
         |Cal_TC0| = |TC0|
         |Cal_Count| = |Cal_Count| + 1.0
 
@@ -259,7 +259,7 @@ loop write_hardware:
         |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
 
     #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
-    |sv0| = |SV_N2_fill.open|
+    |sv0| = |SV_Ox_Vent.open|
     |sv1| = |SV_ox_vent.open|
     |sv2| = |SV_ox_fill.open|
     |sv3| = |SV_fuel_vent.open|

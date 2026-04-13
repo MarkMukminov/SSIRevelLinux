@@ -1,294 +1,269 @@
 #SENSOR MANIFEST
-# Every sensor channel listed here. Operators must know exactly what they are reading.
-#
-# HARDWARE CHANNEL MAPPING (verify against your wiring before ops):
-# PT_OT  ← pt0  | Pressure    | PSI  | 0 – 1300 PSI  | Oxidizer tank pressure transducer
-# PT_FT  ← pt1  | Pressure    | PSI  | 0 – 1300 PSI  | Fuel tank pressure transducer
-# PT5    ← pt2  | Pressure    | PSI  | 0 – 1300 PSI  | [VERIFY: confirm physical location]
-# TC1    ← tc0  | Temperature | degF | 70 – 500 degF | [VERIFY: confirm thermocouple location]
-# LC0    ← lc0  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
-# LC1    ← lc1  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
-# LC2    ← lc2  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
-# LC3    ← lc3  | Load Cell   | raw  | strain gauge  | [VERIFY: confirm load cell assignment]
-#
-# Valve channels (COMMANDED position — no position feedback):
-# MBV_O.open → sv0  | Relay Out | bool | Main bleed valve, oxidizer
-# MBV_F.open → sv1  | Relay Out | bool | Main bleed valve, fuel
-# Ignition_Output → sv2 | Relay Out | bool | E-match trigger, 1-cycle pulse
-#
-# ALERTS (replace manual warning/overpressure flags):
-# alert.warn_pt_ot.fired       | warning  | PT_OT > WARN_P
-# alert.warn_pt_ft.fired       | warning  | PT_FT > WARN_P
-# alert.warn_pt5.fired         | warning  | PT5 > WARN_P
-# alert.overpressure_pt_ot.fired | critical | PT_OT > MAX_SAFE_P
-# alert.overpressure_pt_ft.fired | critical | PT_FT > MAX_SAFE_P
-# alert.overpressure_pt5.fired   | critical | PT5 > MAX_SAFE_P
-# Each alert also provides: .fired_latch, .disable, .reset, .severity, .armed, .triggered
-#
-# Safety thresholds (PSI):
-#   WARN_P      = 1150 PSI  — caution band, operator awareness
-#   MAX_SAFE_P  = 1240 PSI  — hard limit, triggers automatic abort
-#
 # HARDWARE:
 # NI cDAQ-9189 chassis at 172.16.23.1
 # Slot 1: NI 9482 — 4ch Relay Output (sv10–sv13)
-# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1)
+# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1 — MBV PWM)
 # Slot 3: NI 9482 — 4ch Relay Output (sv0–sv3)
-# Slot 4: NI 9219 — 4ch Universal Input, strain gauge (lc0–lc3)
-# Slot 5: NI 9205 — 32ch Analog Input (pt0–pt31)
-# Slot 8: NI 9213 — 16ch Thermocouple Input (tc0–tc15, Type K, degF)
+# Slot 4: NI 9219 — 4ch Universal Input, strain gauge (LC_ox_tank)
+# Slot 5: NI 9205 — 32ch Analog Input (PT_n2_fill, PT_ox_tank, PT_ox_fill, PT_fuel_tank, PT_chamber)
+# Slot 8: NI 9213 — 16ch Thermocouple Input (TC0, Type K, degF)
 
-#CONSTANTS AND CONFIG
+#CONSTANTS
 const CYCLE:float = 0.1
-const MAX_SAFE_P: float = 1240.0
-const WARN_P: float = 1150.0
+const MAX_SAFE_P:float = 1240.0
+const WARN_P:float = 1150.0
 
-#HARDWARE INPUT DECLARATIONS (analog inputs from NI hardware)
-hwin |pt0|:float   #NI 9205 slot 5, ai0 — oxidizer tank pressure transducer
-hwin |pt1|:float   #NI 9205 slot 5, ai1 — fuel tank pressure transducer
-hwin |pt2|:float   #NI 9205 slot 5, ai2 — secondary pressure point [VERIFY]
-hwin |tc0|:float   #NI 921s3 slot 8, ai0 — thermocouple Type K, degF [VERIFY location]
-hwin |lc0|:float   #NI 9219 slot 4, ai0 — load cell ch0 [VERIFY assignment]
-hwin |lc1|:float   #NI 9219 slot 4, ai1 — load cell ch1 [VERIFY assignment]
-hwin |lc2|:float   #NI 9219 slot 4, ai2 — load cell ch2 [VERIFY assignment]
-hwin |lc3|:float   #NI 9219 slot 4, ai3 — load cell ch3 [VERIFY assignment]
+#SERVO PWM CONSTANTS (MBV valve actuation via NI 9401)
+const PULSE_PERIOD_MS:float = 5.0
+const PULSE_WIDTH_MIN_MS:float = 0.5    #0 deg = fully closed
+const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
+const PULSE_OPEN_FRACTION:float = 0.6   #60% of full travel = open position
+const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
+var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
+const RATE_ALPHA:float = 0.1    #EMA smoothing for rate traces (0=frozen, 1=raw, tune as needed)
+const DEADBAND:float = 1.0      #PSI — changes smaller than this get suppressed, larger pass through instantly
 
-#HARDWARE OUTPUT DECLARATIONS — Slot 3 NI 9482 (sv0–sv3)
-sw |sv0.value|:bool = False    #MBV_O: main bleed valve, oxidizer
-sw |sv1.value|:bool = False    #MBV_F: main bleed valve, fuel
-sw |sv2.value|:bool = False    #Ignition_Output: e-match trigger
-sw |sv3.value|:bool = False  #Slot 3 ch3 — [VERIFY: assign to physical valve]
+#HARDWARE INPUTS
+hwin |PT_n2_fill|:float    #NI 9205 slot 5 pt0 — N2 fill line (PSI)
+hwin |PT_ox_tank|:float    #NI 9205 slot 5 pt1 — oxidizer tank (PSI)
+hwin |PT_ox_fill|:float    #NI 9205 slot 5 pt2 — oxidizer fill line (PSI)
+hwin |PT_fuel_tank|:float  #NI 9205 slot 5 pt3 — fuel tank (PSI)
+hwin |PT_chamber|:float    #NI 9205 slot 5 pt4 — chamber (PSI)
+hwin |TC0|:float           #NI 9213 slot 8 — thermocouple Type K (degF)
+hwin |LC_ox_tank|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LC_chamber_1|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LC_chamber_2|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
+hwin |LC_chamber_3|:float    #NI 9219 slot 4 ch0 — ox tank load cell (lbs)
 
-#HARDWARE OUTPUT DECLARATIONS — Slot 1 NI 9482 (sv10–sv13)
-sw |sv10.value|:bool = False  #Slot 1 ch0 — [VERIFY: assign to physical valve]
-sw |sv11.value|:bool = False  #Slot 1 ch1 — [VERIFY: assign to physical valve]
-sw |sv12.value|:bool = False  #Slot 1 ch2 — [VERIFY: assign to physical valve]
-sw |sv13.value|:bool = False  #Slot 1 ch3 — [VERIFY: assign to physical valve]
+#HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
+hwout |servo0.command|:bool = True
+hwout |servo0.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE
+hwout |servo1.command|:bool = True
+hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
-#SOFTWARE CHANNELS — sensor intermediaries (mapped in read_hardware loop)
-sw |PT_OT.value|:float = 0.0
-sw |PT_FT.value|:float = 0.0
-sw |PT5.value|:float = 0.0
-sw |TC1.value|:float = 70.0
+#HARDWARE OUTPUTS — Slot 3 NI 9482 (sv0–sv3)
+hwout |sv0|:bool = False   #SV_N2_fill
+hwout |sv1|:bool = False   #SV_ox_vent
+hwout |sv2|:bool = False   #SV_ox_fill
+hwout |sv3|:bool = False   #SV_fuel_vent
+
+#HARDWARE OUTPUTS — Slot 1 NI 9482 (sv10–sv13)
+hwout |sv10|:bool = False  #ignition ematch
+hwout |sv11|:bool = False
+hwout |sv12|:bool = False
+hwout |sv13|:bool = False
+
+#SMOOTHED PRESSURE (for display — use these on gauges/traces, NOT the raw hwin channels)
+sw |PT_n2_fill_S|:float = 0.0
+sw |PT_ox_tank_S|:float = 0.0
+sw |PT_ox_fill_S|:float = 0.0
+sw |PT_fuel_tank_S|:float = 0.0
+sw |PT_chamber_S|:float = 0.0
+
+#DIAGNOSTIC CHANNELS
 sw |System_Max_P|:float = 0.0
-sw |PT_OT_Prev|:float = 0.0
-sw |PT_FT_Prev|:float = 0.0
-sw |MBV_O.open|:bool = False      #COMMANDED position only
-sw |MBV_F.open|:bool = False      #COMMANDED position only
-sw |MBV_O.cmd_prev|:bool = False
-sw |MBV_F.cmd_prev|:bool = False
-sw |MBV_O.cmd_change|:bool = False #True for 1 cycle on operator-commanded transition
-sw |MBV_F.cmd_change|:bool = False
-sw |RV_O_Lifted|:bool = False
-sw |RV_F_Lifted|:bool = False
-sw |Abort_Active|:bool = False
-sw |Abort_Cause_Overpressure|:bool = False
-sw |Abort_Cause_EStop|:bool = False
-sw |EStop_Cmd|:bool = False
-sw |Reset_Abort|:bool = False
-sw |Ox_Flowing|:bool = False
-sw |Fuel_Flowing|:bool = False
+sw |PT_n2_fill_Prev|:float = 0.0
+sw |PT_ox_tank_Prev|:float = 0.0
+sw |PT_ox_fill_Prev|:float = 0.0
+sw |PT_fuel_tank_Prev|:float = 0.0
+sw |PT_chamber_Prev|:float = 0.0
+sw |PT_n2_fill_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_ox_tank_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_ox_fill_Rate|:float = 0.0    #PSI/min (negative = venting)
+sw |PT_fuel_tank_Rate|:float = 0.0  #PSI/min (negative = venting)
+sw |PT_chamber_Rate|:float = 0.0    #PSI/min
 
-#DIRECT SOLENOID COMMAND CHANNELS (slot 1 + sv3 — operator controlled, abort enforced)
-#[VERIFY: label each with physical valve name before ops]
-sw |SV3.open|:bool = False
+#VALVE COMMAND CHANNELS (operator controlled)
+sw |MBV_ox_run.open|:bool = False
+sw |MBV_fuel_run.open|:bool = False
+sw |SV_N2_fill.open|:bool = False
+sw |SV_ox_vent.open|:bool = False
+sw |SV_ox_fill.open|:bool = False
+sw |SV_fuel_vent.open|:bool = False
 sw |SV10.open|:bool = False
 sw |SV11.open|:bool = False
 sw |SV12.open|:bool = False
 sw |SV13.open|:bool = False
 
-#IGNITION CHANNELS
-sw |Ignition_Armed|:bool = False    #operator explicitly arms ignition
-sw |Ignition_Ready|:bool = False    #computed: all preconditions met
-sw |Ignition_Fire_Cmd|:bool = False #operator fire command (consumed on execution)
-sw |Ignition_Fired|:bool = False    #latching event record
-sw |Ignition_Output|:bool = False   #hardware trigger pulse (1 cycle)
+#IGNITION (one-cycle pulse on sv10)
+sw |Ignition_Fire_Cmd|:bool = False
+sw |Ignition_Output|:bool = False
 
-#E-MATCH CONTINUITY TEST CHANNELS
-sw |Ematch_Continuity_Input|:bool = False #TODO: replace with hwin when DIO channel assigned
-sw |Ematch_Test_Cmd|:bool = False
-sw |Ematch_Test_Result|:bool = False
-sw |Ematch_Test_Run|:bool = False
-sw |Ematch_Ready|:bool = False
+#ABORT CONTROL
+sw |Abort_Active|:bool = False
+sw |EStop_Cmd|:bool = False
+sw |Reset_Abort|:bool = False
 
-#IGNITION DRY RUN CHANNELS
-sw |Dry_Run_Active|:bool = False
-sw |Dry_Run_Fire_Cmd|:bool = False
-sw |Dry_Run_Passed|:bool = False
-
-#LOAD CELL CHANNELS (NI 9219, Slot 4)
-sw |LC0.value|:float = 0.0  #[VERIFY: confirm load cell assignment]
-sw |LC1.value|:float = 0.0
-sw |LC2.value|:float = 0.0
-sw |LC3.value|:float = 0.0
-
-
-#HARDWARE INPUT MAPPING
-loop read_hardware:
-    |PT_OT.value| = |pt0|
-    |PT_FT.value| = |pt1|
-    |PT5.value| = |pt2|
-    |TC1.value| = |tc0|
-    |LC0.value| = |lc0|
-    |LC1.value| = |lc1|
-    |LC2.value| = |lc2|
-    |LC3.value| = |lc3|
+#CALIBRATION — operator-triggered baseline logging for filter tuning
+sw |Cal_Cmd|:bool = False              #click to start 10s baseline recording
+sw |Cal_Active|:bool = False
+sw |Cal_Count|:float = 0.0
+const CAL_CYCLES:float = 100.0        #10 seconds at 0.1s/cycle
+#Logged channels (raw readings during calibration)
+sw |Cal_PT_n2_fill|:float = 0.0
+sw |Cal_PT_ox_tank|:float = 0.0
+sw |Cal_PT_ox_fill|:float = 0.0
+sw |Cal_PT_fuel_tank|:float = 0.0
+sw |Cal_PT_chamber|:float = 0.0
+sw |Cal_LC_ox_tank|:float = 0.0
+#sw |Cal_LoadCell1|:float = 0.0
+#sw |Cal_LoadCell2|:float = 0.0
+#sw |Cal_LoadCell3|:float = 0.0
+sw |Cal_TC0|:float = 0.0
+sw |Cal_Done|:bool = False            #indicator: recording complete, ready to export
 
 
-#PRESSURE WARNING ALERTS
-#Operator sees per-sensor warnings in the alert console.
-#Built-in channels: alert.<name>.fired, .fired_latch, .severity, .disable, .reset
-alert warn_pt_ot:
+#ALERTS — pressure warnings
+alert warn_pt_n2_fill:
     severity = Severity.warning
-    trigger = |PT_OT.value| > WARN_P
+    trigger = |PT_n2_fill| > WARN_P
 
-alert warn_pt_ft:
+alert warn_pt_ox_tank:
     severity = Severity.warning
-    trigger = |PT_FT.value| > WARN_P
+    trigger = |PT_ox_tank| > WARN_P
 
-alert warn_pt5:
+alert warn_pt_ox_fill:
     severity = Severity.warning
-    trigger = |PT5.value| > WARN_P
+    trigger = |PT_ox_fill| > WARN_P
 
-#OVERPRESSURE ALERTS — critical severity, these conditions trigger abort
-alert overpressure_pt_ot:
+alert warn_pt_fuel_tank:
+    severity = Severity.warning
+    trigger = |PT_fuel_tank| > WARN_P
+
+alert warn_pt_chamber:
+    severity = Severity.warning
+    trigger = |PT_chamber| > WARN_P
+
+#ALERTS — overpressure (critical)
+alert overpressure_pt_n2_fill:
     severity = Severity.critical
-    trigger = |PT_OT.value| > MAX_SAFE_P
+    trigger = |PT_n2_fill| > MAX_SAFE_P
 
-alert overpressure_pt_ft:
+alert overpressure_pt_ox_tank:
     severity = Severity.critical
-    trigger = |PT_FT.value| > MAX_SAFE_P
+    trigger = |PT_ox_tank| > MAX_SAFE_P
 
-alert overpressure_pt5:
+alert overpressure_pt_ox_fill:
     severity = Severity.critical
-    trigger = |PT5.value| > MAX_SAFE_P
+    trigger = |PT_ox_fill| > MAX_SAFE_P
+
+alert overpressure_pt_fuel_tank:
+    severity = Severity.critical
+    trigger = |PT_fuel_tank| > MAX_SAFE_P
+
+alert overpressure_pt_chamber:
+    severity = Severity.critical
+    trigger = |PT_chamber| > MAX_SAFE_P
 
 
-#SAFETY MONITORING LOOP
-loop monitor_safety:
-    #VALVE TRANSITION DETECTION (runs before abort enforcement)
-    #cmd_change pulses True for exactly one cycle on operator-commanded transition
-    if |MBV_O.open| != |MBV_O.cmd_prev|:
-        |MBV_O.cmd_change| = True
-    else:
-        |MBV_O.cmd_change| = False
-    if |MBV_F.open| != |MBV_F.cmd_prev|:
-        |MBV_F.cmd_change| = True
-    else:
-        |MBV_F.cmd_change| = False
+#MONITOR — diagnostics and abort
+loop monitor:
+    #SMOOTH RAW PRESSURE — soft adaptive filter: alpha = d²/(d²+DEADBAND²), update = d³/(d²+DEADBAND²)
+    #Small changes (<1PSI) heavily suppressed, large changes pass through smoothly with no hard cutoff
+    #EMA (RATE_ALPHA) on rates below provides a second layer for residual noise at higher pressures
+    |PT_n2_fill_S| = |PT_n2_fill_S| + (|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) / ((|PT_n2_fill| - |PT_n2_fill_S|) * (|PT_n2_fill| - |PT_n2_fill_S|) + DEADBAND * DEADBAND)
+    |PT_ox_tank_S| = |PT_ox_tank_S| + (|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) / ((|PT_ox_tank| - |PT_ox_tank_S|) * (|PT_ox_tank| - |PT_ox_tank_S|) + DEADBAND * DEADBAND)
+    |PT_ox_fill_S| = |PT_ox_fill_S| + (|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) / ((|PT_ox_fill| - |PT_ox_fill_S|) * (|PT_ox_fill| - |PT_ox_fill_S|) + DEADBAND * DEADBAND)
+    |PT_fuel_tank_S| = |PT_fuel_tank_S| + (|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) / ((|PT_fuel_tank| - |PT_fuel_tank_S|) * (|PT_fuel_tank| - |PT_fuel_tank_S|) + DEADBAND * DEADBAND)
+    |PT_chamber_S| = |PT_chamber_S| + (|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) / ((|PT_chamber| - |PT_chamber_S|) * (|PT_chamber| - |PT_chamber_S|) + DEADBAND * DEADBAND)
 
-    |System_Max_P| = max(max(|PT_OT.value|, |PT_FT.value|), |PT5.value|)
+    |System_Max_P| = max(max(max(max(|PT_n2_fill|, |PT_ox_tank|), |PT_ox_fill|), |PT_fuel_tank|), |PT_chamber|)
 
-    #RELIEF VALVE DETECTION: pressure drop >20 PSI/cycle while valve closed
-    #Sticky-True until operator opens the valve
-    if not |MBV_O.open|:
-        if (|PT_OT_Prev| - |PT_OT.value|) > 20.0:
-            |RV_O_Lifted| = True
-    else:
-        |RV_O_Lifted| = False
+    #PRESSURE RATE (PSI/min) — derived from smoothed signal, EMA'd again for trace display
+    |PT_n2_fill_Rate| = RATE_ALPHA * ((|PT_n2_fill_S| - |PT_n2_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_n2_fill_Rate|
+    |PT_ox_tank_Rate| = RATE_ALPHA * ((|PT_ox_tank_S| - |PT_ox_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_tank_Rate|
+    |PT_ox_fill_Rate| = RATE_ALPHA * ((|PT_ox_fill_S| - |PT_ox_fill_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_ox_fill_Rate|
+    |PT_fuel_tank_Rate| = RATE_ALPHA * ((|PT_fuel_tank_S| - |PT_fuel_tank_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_fuel_tank_Rate|
+    |PT_chamber_Rate| = RATE_ALPHA * ((|PT_chamber_S| - |PT_chamber_Prev|) / CYCLE * 60.0) + (1.0 - RATE_ALPHA) * |PT_chamber_Rate|
+    |PT_n2_fill_Prev| = |PT_n2_fill_S|
+    |PT_ox_tank_Prev| = |PT_ox_tank_S|
+    |PT_ox_fill_Prev| = |PT_ox_fill_S|
+    |PT_fuel_tank_Prev| = |PT_fuel_tank_S|
+    |PT_chamber_Prev| = |PT_chamber_S|
 
-    if not |MBV_F.open|:
-        if (|PT_FT_Prev| - |PT_FT.value|) > 20.0:
-            |RV_F_Lifted| = True
-    else:
-        |RV_F_Lifted| = False
-
-    |PT_OT_Prev| = |PT_OT.value|
-    |PT_FT_Prev| = |PT_FT.value|
-
-    #FLOW DETECTION
-    if |PT_OT.value| > 50.0 and |MBV_O.open|:
-        |Ox_Flowing| = True
-    else:
-        |Ox_Flowing| = False
-
-    if |PT_FT.value| > 50.0 and |MBV_F.open|:
-        |Fuel_Flowing| = True
-    else:
-        |Fuel_Flowing| = False
-
-    #ABORT TRIGGER 1: automatic overpressure
-    if |System_Max_P| > MAX_SAFE_P:
-        |Abort_Cause_Overpressure| = True
-        |Abort_Active| = True
-
-    #ABORT TRIGGER 2: operator E-Stop (command consumed same cycle)
+    #E-STOP: operator triggers abort
     if |EStop_Cmd|:
-        |Abort_Cause_EStop| = True
         |Abort_Active| = True
         |EStop_Cmd| = False
 
-    #ABORT RESPONSE: close all flow paths including direct solenoids
+    #ABORT RESPONSE: open vent paths, close fill/ignition paths
     if |Abort_Active|:
-        |MBV_O.open| = False
-        |MBV_F.open| = False
-        |SV3.open| = False
+        |MBV_ox_run.open| = True
+        |MBV_fuel_run.open| = True
+        |SV_N2_fill.open| = False
+        |SV_ox_vent.open| = True
+        |SV_ox_fill.open| = False
+        |SV_fuel_vent.open| = True
         |SV10.open| = False
         |SV11.open| = False
         |SV12.open| = False
         |SV13.open| = False
+        |sv0| = False
+        |sv1| = True
+        |sv2| = False
+        |sv3| = True
+        |sv10| = False
+        |sv11| = False
+        |sv12| = False
+        |sv13| = False
 
-    #ABORT RESET: clear abort when pressure is confirmed safe
-    if |Reset_Abort| and |System_Max_P| < MAX_SAFE_P:
+    #ABORT RESET
+    if |Reset_Abort|:
         |Abort_Active| = False
-        |Abort_Cause_Overpressure| = False
-        |Abort_Cause_EStop| = False
         |Reset_Abort| = False
 
-    #Update valve cmd_prev AFTER abort enforcement
-    |MBV_O.cmd_prev| = |MBV_O.open|
-    |MBV_F.cmd_prev| = |MBV_F.open|
+    #CALIBRATION — record baseline for filter tuning (no filtering applied, raw readings)
+    if |Cal_Cmd|:
+        |Cal_Cmd| = False
+        |Cal_Active| = True
+        |Cal_Count| = 0.0
+        |Cal_Done| = False
+
+    if |Cal_Active|:
+        #Log raw (unfiltered) channel values
+        |Cal_PT_n2_fill| = |PT_n2_fill|
+        |Cal_PT_ox_tank| = |PT_ox_tank|
+        |Cal_PT_ox_fill| = |PT_ox_fill|
+        |Cal_PT_fuel_tank| = |PT_fuel_tank|
+        |Cal_PT_chamber| = |PT_chamber|
+        |Cal_LC_ox_tank| = |LC_ox_tank|
+        #|Cal_LoadCell1| = |LoadCell1|
+        #|Cal_LoadCell2| = |LoadCell2|
+        #|Cal_LoadCell3| = |LoadCell3|
+        |Cal_TC0| = |TC0|
+        |Cal_Count| = |Cal_Count| + 1.0
+
+        if |Cal_Count| >= CAL_CYCLES:
+            |Cal_Active| = False
+            |Cal_Done| = True
 
 
-#E-MATCH CONTINUITY LOOP
-loop ematch_continuity:
-    if |Ematch_Test_Cmd|:
-        |Ematch_Test_Cmd| = False
-        |Ematch_Test_Result| = |Ematch_Continuity_Input|
-        |Ematch_Test_Run| = True
-
-    if |Ematch_Test_Run| and |Ematch_Test_Result| and not |Abort_Active|:
-        |Ematch_Ready| = True
-    else:
-        |Ematch_Ready| = False
-
-
-#IGNITION LOOP
-loop ignition_sequence:
-    #Abort clears arm
-    if |Abort_Active|:
-        |Ignition_Armed| = False
-
-    #Compute readiness: all preconditions must hold simultaneously
-    if |Ignition_Armed| and not |Abort_Active| and |System_Max_P| > 0.0 and |System_Max_P| < MAX_SAFE_P:
-        |Ignition_Ready| = True
-    else:
-        |Ignition_Ready| = False
-
-    #Clear output every cycle — one-cycle pulse only
+#WRITE HARDWARE
+loop write_hardware:
+    #Ignition pulse — clear every cycle, fire on command (sv10)
     |Ignition_Output| = False
-
-    #DRY RUN: exercises full sequence without hardware output
-    if |Dry_Run_Fire_Cmd|:
-        |Dry_Run_Fire_Cmd| = False
-        if |Dry_Run_Active| and |Ignition_Ready|:
-            |Dry_Run_Passed| = True
-
-    #LIVE FIRE: only when ready AND not in dry run, command consumed regardless
     if |Ignition_Fire_Cmd|:
         |Ignition_Fire_Cmd| = False
-        if |Ignition_Ready| and not |Dry_Run_Active|:
-            |Ignition_Output| = True
-            |Ignition_Fired| = True
+        |Ignition_Output| = True
 
+    #MBV servo control (NI 9401 slot 2)
+    if |MBV_ox_run.open|:
+        |servo0.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
+    if |MBV_fuel_run.open|:
+        |servo1.duty_cycle| = OPEN_DUTY_CYCLE
+    else:
+        |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
 
-#HARDWARE OUTPUT MAPPING
-loop write_hardware:
-    |sv0.value| = |MBV_O.open|
-    |sv1.value| = |MBV_F.open|
-    |sv2.value| = |Ignition_Output|
-    |sv3.value| = |SV3.open|
-    |sv10.value| = |SV10.open|
-    |sv11.value| = |SV11.open|
-    |sv12.value| = |SV12.open|
-    |sv13.value| = |SV13.open|
+    #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
+    |sv0| = |SV_N2_fill.open|
+    |sv1| = |SV_ox_vent.open|
+    |sv2| = |SV_ox_fill.open|
+    |sv3| = |SV_fuel_vent.open|
+    |sv10| = |Ignition_Output|
+    |sv11| = |SV11.open|
+    |sv12| = |SV12.open|
+    |sv13| = |SV13.open|
