@@ -44,10 +44,10 @@ hwout |MBV_fuel_run.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
 hwout |MBV_fuel_run.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
 #HARDWARE OUTPUTS — Slot 3 NI 9482 (sv0–sv3)
-hwout |sv0|:bool = False   #SV_N2_fill
-hwout |sv1|:bool = False   #SV_ox_vent
-hwout |sv2|:bool = False   #SV_ox_fill
-hwout |sv3|:bool = False   #SV_fuel_vent
+hwout |sv0|:bool = False   #SV_ox_vent
+hwout |sv1|:bool = False   #SV_fuel_vent
+hwout |sv2|:bool = False   #SV_N2_fill
+hwout |sv3|:bool = False   #SV_ox_fill
 
 #HARDWARE OUTPUTS — Slot 1 NI 9482 (sv10–sv13)
 hwout |sv10|:bool = False  #ignition ematch
@@ -189,6 +189,7 @@ loop monitor:
         |EStop_Cmd| = False
 
     #ABORT RESPONSE: open vent paths, close fill/ignition paths
+    #write_hardware loop handles physical sv0-sv3 mapping — only set named channels here
     if |Abort_Active|:
         |MBV_ox_run.open| = True
         |MBV_fuel_run.open| = True
@@ -200,14 +201,6 @@ loop monitor:
         |SV11.open| = False
         |SV12.open| = False
         |SV13.open| = False
-        |sv0| = False
-        |sv1| = True
-        |sv2| = False
-        |sv3| = True
-        |sv10| = False
-        |sv11| = False
-        |sv12| = False
-        |sv13| = False
 
     #ABORT RESET
     if |Reset_Abort|:
@@ -258,11 +251,11 @@ loop write_hardware:
     else:
         |MBV_fuel_run.duty_cycle| = CLOSED_DUTY_CYCLE
 
-    #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
-    |sv0| = |SV_N2_fill.open|
-    |sv1| = |SV_ox_vent.open|
-    |sv2| = |SV_ox_fill.open|
-    |sv3| = |SV_fuel_vent.open|
+    #Solenoid relay outputs (NI 9482 slot 3 + slot 1) — physical wiring map
+    |sv0| = |SV_ox_vent.open|
+    |sv1| = |SV_fuel_vent.open|
+    |sv2| = |SV_N2_fill.open|
+    |sv3| = |SV_ox_fill.open|
     |sv10| = |Ignition_Output|
     |sv11| = |SV11.open|
     |sv12| = |SV12.open|

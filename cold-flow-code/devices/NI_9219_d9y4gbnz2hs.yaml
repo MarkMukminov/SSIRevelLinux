@@ -26,17 +26,17 @@ channel_settings:
 - is_enabled: true
   revel_name: LoadCell1
   address: slot4_Specialty1
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: -26.6
+  scaling_b: -0.798
+  display_unit: lbs
   description: ''
-  measurement_mode: strain_gauge
+  measurement_mode: voltage
   excitation_voltage: 2.5
   strain_config: QuarterBridgeI
   gage_factor: 2.0
   poisson_ratio: 0.3
   bridge_config: Full Bridge
-  voltage_range_v: +/-60.0V
+  voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
   resistance_range: "0-1.05k\u03A9"
   resistance_config: 4_wire
@@ -44,17 +44,17 @@ channel_settings:
 - is_enabled: true
   revel_name: LoadCell2
   address: slot4_Specialty2
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: -31.8
+  scaling_b: -0.286
+  display_unit: lbs
   description: ''
-  measurement_mode: strain_gauge
+  measurement_mode: voltage
   excitation_voltage: 2.5
   strain_config: QuarterBridgeI
   gage_factor: 2.0
   poisson_ratio: 0.3
   bridge_config: Full Bridge
-  voltage_range_v: +/-60.0V
+  voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
   resistance_range: "0-1.05k\u03A9"
   resistance_config: 4_wire
@@ -62,17 +62,17 @@ channel_settings:
 - is_enabled: true
   revel_name: LoadCell3
   address: slot4_Specialty3
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: -10.5
+  scaling_b: -0.105
+  display_unit: lbs
   description: ''
-  measurement_mode: strain_gauge
+  measurement_mode: voltage
   excitation_voltage: 2.5
   strain_config: QuarterBridgeI
   gage_factor: 2.0
   poisson_ratio: 0.3
   bridge_config: Full Bridge
-  voltage_range_v: +/-60.0V
+  voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
   resistance_range: "0-1.05k\u03A9"
   resistance_config: 4_wire
