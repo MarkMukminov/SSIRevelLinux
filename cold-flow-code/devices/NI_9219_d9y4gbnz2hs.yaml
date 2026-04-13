@@ -13,7 +13,6 @@ channel_settings:
   display_unit: lbs
   description: ''
   measurement_mode: voltage
-  excitation_voltage: 2.5
   voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
 - is_enabled: true
@@ -24,7 +23,6 @@ channel_settings:
   display_unit: lbs
   description: ''
   measurement_mode: voltage
-  excitation_voltage: 2.5
   voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
 - is_enabled: true
@@ -35,7 +33,6 @@ channel_settings:
   display_unit: lbs
   description: ''
   measurement_mode: voltage
-  excitation_voltage: 2.5
   voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
 - is_enabled: true
@@ -46,6 +43,5 @@ channel_settings:
   display_unit: lbs
   description: ''
   measurement_mode: voltage
-  excitation_voltage: 2.5
   voltage_range_v: +/-15.0V
   voltage_terminal_config: Differential
