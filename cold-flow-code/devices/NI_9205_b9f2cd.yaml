@@ -5,7 +5,7 @@ slot_number: 5
 enable_high_speed_mode: false
 sample_rate_hz_per_channel: 7812.5
 voltage_range_v: +/-5.0V
-terminal_config: Differential
+terminal_config: RSE
 channel_settings:
 - is_enabled: false
   revel_name: pt0
@@ -119,56 +119,56 @@ channel_settings:
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt16
   address: slot5_AnalogInput16
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt17
   address: slot5_AnalogInput17
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt18
   address: slot5_AnalogInput18
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt19
   address: slot5_AnalogInput19
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt20
   address: slot5_AnalogInput20
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt21
   address: slot5_AnalogInput21
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt22
   address: slot5_AnalogInput22
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: true
+- is_enabled: false
   revel_name: pt23
   address: slot5_AnalogInput23
   scaling_m: 1.0
