@@ -20,8 +20,8 @@ const PULSE_WIDTH_MAX_MS:float = 2.5    #180 deg = max travel
 const PULSE_OPEN_FRACTION:float = 0.6   #60% of full travel = open position
 const CLOSED_DUTY_CYCLE:float = PULSE_WIDTH_MIN_MS / PULSE_PERIOD_MS
 var OPEN_DUTY_CYCLE:float = max(min(1.0, PULSE_OPEN_FRACTION), 0.0) * PULSE_WIDTH_MAX_MS / PULSE_PERIOD_MS
-const RATE_ALPHA:float = 0.1    #EMA smoothing for rate traces (0=frozen, 1=raw, tune as needed)
-const DEADBAND:float = 1.0      #PSI — changes smaller than this get suppressed, larger pass through instantly
+const RATE_ALPHA:float = 0.02   #EMA smoothing for rate traces — tuned from 2026-04-13 baseline data
+const DEADBAND:float = 3.0      #PSI — tuned from 2026-04-13 baseline: display noise <0.52 PSI, rate noise <12 PSI/min p95
 
 #HARDWARE INPUTS
 hwin |PT_n2_fill|:float    #NI 9205 slot 5 pt0 — N2 fill line (PSI)
