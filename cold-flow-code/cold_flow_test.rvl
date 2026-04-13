@@ -2,7 +2,7 @@
 # HARDWARE:
 # NI cDAQ-9189 chassis at 172.16.23.1
 # Slot 1: NI 9482 — 4ch Relay Output (sv10–sv13)
-# Slot 2: NI 9401 — 8ch High-Speed DIO (servo0, servo1 — MBV PWM)
+# Slot 2: NI 9401 — 8ch High-Speed DIO (MBV_ox_run, MBV_fuel_run — servo PWM)
 # Slot 3: NI 9482 — 4ch Relay Output (sv0–sv3)
 # Slot 4: NI 9219 — 4ch Universal Input, strain gauge (LC_ox_tank)
 # Slot 5: NI 9205 — 32ch Analog Input (PT_n2_fill, PT_ox_tank, PT_ox_fill, PT_fuel_tank, PT_chamber)
@@ -35,13 +35,13 @@ hwin |LoadCell1|:float     #NI 9219 slot 4 ch1
 hwin |LoadCell2|:float     #NI 9219 slot 4 ch2
 hwin |LoadCell3|:float     #NI 9219 slot 4 ch3
 
-#HARDWARE OUTPUTS — Slot 2 NI 9401 (servo0, servo1 — MBV PWM)
-hwout |servo0.command|:bool = True
-hwout |servo0.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
-hwout |servo0.duty_cycle|:float = CLOSED_DUTY_CYCLE
-hwout |servo1.command|:bool = True
-hwout |servo1.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
-hwout |servo1.duty_cycle|:float = CLOSED_DUTY_CYCLE
+#HARDWARE OUTPUTS — Slot 2 NI 9401 (MBV_ox_run, MBV_fuel_run — servo PWM)
+hwout |MBV_ox_run.command|:bool = True
+hwout |MBV_ox_run.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |MBV_ox_run.duty_cycle|:float = CLOSED_DUTY_CYCLE
+hwout |MBV_fuel_run.command|:bool = True
+hwout |MBV_fuel_run.frequency|:float = 1.0 / (PULSE_PERIOD_MS / 1000.0)
+hwout |MBV_fuel_run.duty_cycle|:float = CLOSED_DUTY_CYCLE
 
 #HARDWARE OUTPUTS — Slot 3 NI 9482 (sv0–sv3)
 hwout |sv0|:bool = False   #SV_N2_fill
@@ -250,13 +250,13 @@ loop write_hardware:
 
     #MBV servo control (NI 9401 slot 2)
     if |MBV_ox_run.open|:
-        |servo0.duty_cycle| = OPEN_DUTY_CYCLE
+        |MBV_ox_run.duty_cycle| = OPEN_DUTY_CYCLE
     else:
-        |servo0.duty_cycle| = CLOSED_DUTY_CYCLE
+        |MBV_ox_run.duty_cycle| = CLOSED_DUTY_CYCLE
     if |MBV_fuel_run.open|:
-        |servo1.duty_cycle| = OPEN_DUTY_CYCLE
+        |MBV_fuel_run.duty_cycle| = OPEN_DUTY_CYCLE
     else:
-        |servo1.duty_cycle| = CLOSED_DUTY_CYCLE
+        |MBV_fuel_run.duty_cycle| = CLOSED_DUTY_CYCLE
 
     #Solenoid relay outputs (NI 9482 slot 3 + slot 1)
     |sv0| = |SV_N2_fill.open|

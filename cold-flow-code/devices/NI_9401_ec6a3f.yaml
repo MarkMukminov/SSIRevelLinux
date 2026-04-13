@@ -69,14 +69,14 @@ channel_settings:
   display_unit: ''
   description: ''
 - is_enabled: true
-  revel_name: servo0
+  revel_name: MBV_ox_run
   address: slot2_DigitalInputOutput8
   scaling_m: 1.0
   scaling_b: 0.0
   display_unit: ''
   description: ''
 - is_enabled: true
-  revel_name: servo1
+  revel_name: MBV_fuel_run
   address: slot2_DigitalInputOutput9
   scaling_m: 1.0
   scaling_b: 0.0

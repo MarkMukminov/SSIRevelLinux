@@ -7,33 +7,33 @@ sample_rate_hz_per_channel: 7812.5
 voltage_range_v: +/-5.0V
 terminal_config: Differential
 channel_settings:
-- is_enabled: true
-  revel_name: PT_n2_fill
+- is_enabled: false
+  revel_name: pt0
   address: slot5_AnalogInput0
-  scaling_m: 355.56
-  scaling_b: -177.78
-  display_unit: Psi
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
   description: ''
-- is_enabled: true
-  revel_name: PT_ox_tank
+- is_enabled: false
+  revel_name: pt1
   address: slot5_AnalogInput1
-  scaling_m: 355.56
-  scaling_b: -177.78
-  display_unit: Psi
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
   description: ''
-- is_enabled: true
-  revel_name: PT_ox_fill
+- is_enabled: false
+  revel_name: pt2
   address: slot5_AnalogInput2
-  scaling_m: 355.56
-  scaling_b: -177.76
-  display_unit: Psi
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
   description: ''
-- is_enabled: true
-  revel_name: PT_fuel_tank
+- is_enabled: false
+  revel_name: pt3
   address: slot5_AnalogInput3
-  scaling_m: 355.56
-  scaling_b: -177.78
-  display_unit: Psi
+  scaling_m: 1.0
+  scaling_b: 0.0
+  display_unit: ''
   description: ''
 - is_enabled: true
   revel_name: PT_chamber
@@ -42,8 +42,8 @@ channel_settings:
   scaling_b: -177.78
   display_unit: Psi
   description: ''
-- is_enabled: false
-  revel_name: pt5
+- is_enabled: true
+  revel_name: PT_fuel_tank
   address: slot5_AnalogInput5
   scaling_m: 355.56
   scaling_b: -177.78
@@ -56,12 +56,12 @@ channel_settings:
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: false
-  revel_name: pt7
+- is_enabled: true
+  revel_name: PT_ox_fill
   address: slot5_AnalogInput7
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 355.56
+  scaling_b: -177.78
+  display_unit: Psi
   description: ''
 - is_enabled: false
   revel_name: pt8
@@ -70,12 +70,12 @@ channel_settings:
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: false
-  revel_name: pt9
+- is_enabled: true
+  revel_name: PT_ox_tank
   address: slot5_AnalogInput9
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 355.56
+  scaling_b: -177.78
+  display_unit: Psi
   description: ''
 - is_enabled: false
   revel_name: pt10
@@ -84,12 +84,12 @@ channel_settings:
   scaling_b: 0.0
   display_unit: ''
   description: ''
-- is_enabled: false
-  revel_name: pt11
+- is_enabled: true
+  revel_name: PT_n2_fill
   address: slot5_AnalogInput11
-  scaling_m: 1.0
-  scaling_b: 0.0
-  display_unit: ''
+  scaling_m: 355.56
+  scaling_b: -177.78
+  display_unit: Psi
   description: ''
 - is_enabled: false
   revel_name: pt12
